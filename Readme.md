@@ -12,7 +12,7 @@ Make sure the following environmental variables are set before running the serve
 - MONGO_URI
 
 
-## Scripts
+### Scripts
 
 - `npm run dev` : Starts the development server
 - `npm run start` : Starts the production server
