@@ -16,4 +16,4 @@ Make sure the following environmental variables are set before running the serve
 
 - `npm run dev` : Starts the development server
 - `npm run start` : Starts the production server
-- Refer to the pckage.json file for more scripts
+- Refer to the package.json file for more scripts
