@@ -1,3 +1,3 @@
 module.exports = {
-  login: require('./services/login'),
+  login: require('./services/login')
 }

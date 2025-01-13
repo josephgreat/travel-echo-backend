@@ -8,7 +8,10 @@
     "start": "node src/server.js",
     "format": "prettier --write .",
     "lint": "eslint . ",
-    "lint:fix": "eslint . --fix "
+    "lint:fix": "eslint . --fix ",
+    "swagger": "node src/utils/swagger.js",
+    "create:domain": "node src/bin/create-domain.js",
+    "create:model": "node src/bin/create-model.js"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +33,7 @@
     "eslint": "^9.18.0",
     "globals": "^15.14.0",
     "nodemon": "^3.1.9",
-    "prettier": "^3.4.2"
+    "prettier": "^3.4.2",
+    "swagger-autogen": "^2.23.7"
   }
 }

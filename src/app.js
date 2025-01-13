@@ -15,6 +15,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
 app.use(routes())
+
 //Error handling middleware must be the last
 app.use(errorHandler)
 

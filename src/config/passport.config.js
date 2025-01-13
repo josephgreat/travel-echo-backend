@@ -9,22 +9,24 @@ const jwtOptions = {
   secretOrKey: JWT_SECRET
 }
 
-passport.use(new Strategy(jwtOptions, async (payload, done) => {
-  try {
-    const user = await User.findById(payload.id).lean()
-    if (!user) {
-      return done(null, false)
+passport.use(
+  new Strategy(jwtOptions, async (payload, done) => {
+    try {
+      const user = await User.findById(payload.id).lean()
+      if (!user) {
+        return done(null, false)
+      }
+      //Add more fields as needed
+      const authenticatedUser = {
+        _id: user._id,
+        name: user.name,
+        email: user.email
+      }
+      return done(null, authenticatedUser)
+    } catch (err) {
+      return done(err, false)
     }
-    //Add more fields as needed
-    const authenticatedUser = {
-      _id: user._id,
-      name: user.name,
-      email: user.email
-    }
-    return done(null, authenticatedUser)
-  } catch (err) {
-    return done(err, false)
-  }
-}))
+  })
+)
 
 module.exports = passport
