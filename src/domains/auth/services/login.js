@@ -24,7 +24,7 @@ module.exports = async (req, res) => {
 
   const token = jwt.sign(
     { userId: user._id, email: user.email },
-    env.get('JWT_SECRET', 'your_jwt_secret'),
+    env.get('JWT_SECRET'),
     { expiresIn: '1d' }
   )
 
