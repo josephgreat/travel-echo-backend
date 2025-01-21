@@ -8,7 +8,7 @@ const doc = {
     title: 'Travel Echo REST API'
   },
   host: env.get('BASE_URL', 'localhost:5000'),
-  basePath: "/",
+  basePath: '/',
   schemes: ['http', 'https']
 }
 
@@ -16,4 +16,4 @@ const outputFile = path.resolve('docs/swagger-doc.json')
 const routes = ['../app.js']
 
 swaggerAutogen(outputFile, routes, doc)
-  //.then(() => require('../server'))
+//.then(() => require('../server'))

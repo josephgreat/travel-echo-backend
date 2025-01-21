@@ -19,7 +19,6 @@ Make sure the following environmental variables are set before running the serve
 - JWT_SECRET : The secret key used for JWT authentication; a random string of at least 32 characters is recommended
 - MONGO_URI : The connection string for the MongoDB database; defaults to mongodb://localhost:27017/travel_echo
 
-
 ### Scripts
 
 - `npm run dev` : Starts the development server

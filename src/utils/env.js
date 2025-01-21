@@ -35,7 +35,7 @@ const env = {
 - @param {*} [defaultValue] - The default value to return if the variable is not set.
 - @returns {*} The value of the environment variable, or the default value.
 */
-  get: (key, defaultValue) => process.env[key] ?? defaultValue,
+  get: (key, defaultValue) => process.env[key] ?? defaultValue ?? '',
 
   /**
 - Set the value of an environment variable.

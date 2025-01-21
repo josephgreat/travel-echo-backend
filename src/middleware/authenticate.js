@@ -7,12 +7,10 @@ const authenticate = (role) => {
   return (req, res, next) => {
     passport.authenticate('jwt', (err, user) => {
       if (err) {
-        res
-          .status(401)
-          .json({
-            success: false,
-            message: `authentication failed: ${err.message}`
-          })
+        res.status(401).json({
+          success: false,
+          message: `authentication failed: ${err.message}`
+        })
         return
       }
       if (!user) {
