@@ -14,7 +14,7 @@ module.exports = (err, req, res, next) => {
   )
 
   const status = err.status ?? 500
-  const data = err.data ?? {}
+  const data = err.data
 
   let message =
     status >= 500 && IS_PRODUCTION_ENV

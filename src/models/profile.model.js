@@ -8,7 +8,9 @@ const ProfileSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    unique: true,
+    immutable: true
   },
   dateOfBirth: {
     type: Date
@@ -39,6 +41,8 @@ const ProfileSchema = new Schema({
   }
 })
 
+ProfileSchema.index({ user: 1 }, { unique: true })
+
 ProfileSchema.pre('save', async function (next) {
   if (this.isModified('dateOfBirth')) {
     const age = computeAge(this.dateOfBirth)
@@ -49,6 +53,7 @@ ProfileSchema.pre('save', async function (next) {
   }
   next()
 })
+
 
 const Profile = model('Profile', ProfileSchema)
 

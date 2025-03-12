@@ -12,19 +12,20 @@ const jwtOptions = {
 passport.use(
   new Strategy(jwtOptions, async (payload, done) => {
     try {
-      const user = await User.findById(payload.id).lean()
+      const user = await User.findById(payload.userId).lean()
       if (!user) {
-        return done(null, false)
+        return done(null, false, { message: "User not found" });
       }
       //Add more fields as needed
       const authenticatedUser = {
-        _id: user._id,
+        id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
       return done(null, authenticatedUser)
     } catch (err) {
-      return done(err, false)
+      return done(err, false, { message: "Authentication error" })
     }
   })
 )

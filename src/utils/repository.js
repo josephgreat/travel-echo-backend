@@ -1,4 +1,3 @@
-const HTTPException = require('./http-exception')
 const logger = require('./logger')
 
 const repository = (modelName) => {
@@ -14,16 +13,16 @@ const repository = (modelName) => {
       return async (req, res, next) => {
         try {
           const { id } = req.params
-          const { where, sort, select, limit, skip, populate } = req.query
+          const { key, where, sort, select, limit, skip, populate } = req.query
 
           let query
 
           // If an ID is provided, fetch a single document
           if (id) {
-            query = Model.findById(id)
+            const parsedKey = key?.toString()
+            query = parsedKey ? Model.findOne({ [parsedKey] : id }) : Model.findById(id)
           } else {
             query = Model.find()
-
             // Handling multiple "where" conditions (where=name,john&where=age,30)
             if (where) {
               try {
@@ -39,8 +38,11 @@ const repository = (modelName) => {
 
                 query = query.find(filters)
               } catch (err) {
-                logger.error("Invalid 'where' query format", err)
-                throw new HTTPException("Invalid 'where' query format", 400)
+                logger.debug(`Invalid 'where' query format: ${err}`)
+                return res.status(400).json({
+                  success: false,
+                  message: "Invalid 'where' query format"
+                })
               }
             }
 
@@ -60,8 +62,11 @@ const repository = (modelName) => {
 
                 query = query.sort(sortObj)
               } catch (err) {
-                logger.error("Invalid 'sort' query format", err)
-                throw new HTTPException("Invalid 'sort' query format", 400)
+                logger.debug(`Invalid 'sort' query format: ${err}`)
+                return res.status(400).json({
+                  success: false,
+                  message: "Invalid 'sort' query format"
+                })
               }
             }
 
@@ -84,12 +89,15 @@ const repository = (modelName) => {
                 populateParams.forEach((popItem) => {
                   const [path, ...fields] = popItem.split(',')
                   if (path) {
-                    query = query.populate({ path, select: fields.join(' ') })
+                    query = query.populate(fields.length ? { path, select: fields.join(' ') } : { path });
                   }
                 })
               } catch (err) {
-                logger.error("Invalid 'populate' query format", err)
-                throw new HTTPException("Invalid 'populate' query format", 400)
+                logger.debug(`Invalid 'populate' query format: ${err}`)
+                return res.status(400).json({
+                  success: false,
+                  message: "Invalid 'populate' query format"
+                })
               }
             }
           }
@@ -104,8 +112,64 @@ const repository = (modelName) => {
 
           res.status(200).json({ success: true, data: updatedData || result })
         } catch (err) {
-          logger.error(`Error executing GET request on ${modelName} model`, err)
           next(err)
+        }
+      }
+    },
+
+    POST: (onBeforeCreate, onBeforeEnd, saveModified = false) => {
+      return async (req, res, next) => {
+        const data = req.body
+        if (!data || (Object.keys(data).length < 1)) {
+          return res.status(400).json({
+            success: false,
+            message: 'No data provided.'
+          })
+        }
+
+        try {
+          const parsedData = onBeforeCreate?.(data) ?? data
+          const result = await Model.create(parsedData);
+          const responseData = onBeforeEnd?.(result) ?? result;
+          if (saveModified) {
+            await responseData.save()
+          }
+          
+          return res.status(201).json({
+            success: true,
+            data: responseData
+          });
+        } catch (error) {
+          next(error)
+        }
+      }
+    },
+
+    UPDATE: (onBeforeUpdate, onBeforeEnd, saveModified = false) => {
+      return async (req, res, next) => {
+        const data = req.body
+        if (!data || (Object.keys(data).length < 1)) {
+          return res.status(400).json({
+            success: false,
+            message: 'No data provided.'
+          })
+        }
+
+        try {
+          const parsedData = onBeforeUpdate?.(data) ?? data
+          const result = await Model.update(parsedData, { new: true });
+          const responseData = onBeforeEnd?.(result) ?? result;
+
+          if (saveModified) {
+            await responseData.save()
+          }
+          
+          return res.status(201).json({
+            success: true,
+            data: responseData
+          });
+        } catch (error) {
+          next(error)
         }
       }
     }

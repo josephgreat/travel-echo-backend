@@ -11,12 +11,12 @@ const authenticate = (role) => {
         return
       }
       if (!user) {
-        res.status(401).json({ success: false, message: 'User not authorized' })
+        res.status(401).json({ success: false, message: 'Not authorized. Please, sign in' })
         return
       }
       if (role) {
         if (user.role?.toLowerCase() !== role.toLowerCase()) {
-          res.status(403).json({ success: false, message: 'Not allowed' })
+          res.status(403).json({ success: false, message: 'You do not have access to this resource' })
           return
         }
       }
