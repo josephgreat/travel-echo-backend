@@ -4,7 +4,7 @@ const env = require('../utils/env')
 
 const initializeDatabase = () => {
   mongoose
-    .connect(env.get('MONGODB_URI'))
+    .connect(env.get('MONGODB_URI'), { useUnifiedTopology: true })
     .then(() => {
       logger.info('MongoDB connection established')
     })

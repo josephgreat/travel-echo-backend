@@ -1,6 +1,3 @@
-//Middleware to verify if user is authenticated on protected routes
-//Might change later especially if we introduce roles
-
 const passport = require('../config/passport.config')
 
 const authenticate = (role) => {
@@ -9,7 +6,7 @@ const authenticate = (role) => {
       if (err) {
         res.status(401).json({
           success: false,
-          message: `authentication failed: ${err.message}`
+          message: `Authentication failed: ${err.message}`
         })
         return
       }

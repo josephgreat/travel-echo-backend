@@ -1,4 +1,4 @@
 module.exports = {
-  login: require('./services/login'),
-  register: require('./services/register'),
+  login: require('./services/login.service'),
+  register: require('./services/register.service'),
 }

@@ -1,6 +1,5 @@
 const env = require('../../../utils/env')
 const User = require('../../../models/user.model')
-const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 module.exports = async (req, res) => {
@@ -16,15 +15,8 @@ module.exports = async (req, res) => {
       })
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10)
-
     // Create a new user
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword
-    })
+    const newUser = new User({ name, email, password })
     await newUser.save()
 
     // Generate JWT
