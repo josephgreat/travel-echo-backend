@@ -6,6 +6,7 @@ const logger = require('../utils/logger')
 const limiter = rateLimit({
   store: new MongoStore({
     uri: env.get('MONGO_URI'),
+    collection: 'rate_limit',
     user: env.get('MONGO_USER'),
     password: env.get('MONGO_PASSWORD'),
     expireTimeMs: 15 * 60 * 1000,

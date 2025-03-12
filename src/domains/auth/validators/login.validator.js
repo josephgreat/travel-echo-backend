@@ -8,14 +8,14 @@ const Schema = z.object({
     .string({ message: 'Password is required' })
     .min(8, { message: 'Password must be at least 8 characters' })
     .refine((p) => /[a-z]/.test(p), {
-      message: 'Password must contain at least one lowercase letter',
+      message: 'Password must contain at least one lowercase letter'
     })
     .refine((p) => /[A-Z]/.test(p), {
-      message: 'Password must contain at least one uppercase letter',
+      message: 'Password must contain at least one uppercase letter'
     })
     .refine((p) => /\d/.test(p), {
-      message: 'Password must contain at least one number',
-    }),
+      message: 'Password must contain at least one number'
+    })
 })
 
 module.exports = async (req, res, next) => {
@@ -28,8 +28,8 @@ module.exports = async (req, res, next) => {
         message: result.error.errors[0].message
       })
     }
-  next()
-  } catch(error) {
+    next()
+  } catch (error) {
     next(error)
   }
 }

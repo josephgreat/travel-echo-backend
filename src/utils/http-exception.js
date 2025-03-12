@@ -7,4 +7,4 @@ class HTTPException extends Error {
   }
 }
 
-module.exports = HTTPException;
+module.exports = HTTPException

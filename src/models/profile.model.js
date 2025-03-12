@@ -1,0 +1,55 @@
+// profile.model.js
+const { Schema, model } = require('mongoose')
+const { MINIMUM_AGE } = require('../utils/constants')
+const { computeAge } = require('../utils/helpers')
+
+const ProfileSchema = new Schema({
+  // Define schema for Profile
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  dateOfBirth: {
+    type: Date
+  },
+  image: {
+    type: String
+  },
+  country: {
+    type: String
+  },
+  state: {
+    type: String
+  },
+  city: {
+    type: String
+  },
+  school: {
+    type: String
+  },
+  occupation: {
+    type: String
+  },
+  interests: {
+    type: [String]
+  },
+  languages: {
+    type: [String]
+  }
+})
+
+ProfileSchema.pre('save', async function (next) {
+  if (this.isModified('dateOfBirth')) {
+    const age = computeAge(this.dateOfBirth)
+    // Check if age is at least 15
+    if (age < MINIMUM_AGE) {
+      return next(new Error('You must be at least 15 years old.'))
+    }
+  }
+  next()
+})
+
+const Profile = model('Profile', ProfileSchema)
+
+module.exports = Profile

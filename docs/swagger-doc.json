@@ -7,10 +7,7 @@
   },
   "host": "http://localhost",
   "basePath": "/",
-  "schemes": [
-    "http",
-    "https"
-  ],
+  "schemes": ["http", "https"],
   "paths": {
     "/auth/login": {
       "post": {

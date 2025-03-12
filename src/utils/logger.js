@@ -1,15 +1,20 @@
-const winston = require('winston');
-const path = require('path');
+const winston = require('winston')
+const path = require('path')
 const fs = require('fs')
-const { IS_PRODUCTION_ENV } = require('../utils/constants');
+const { IS_PRODUCTION_ENV } = require('../utils/constants')
 
-const logDirectory = path.resolve('logs');
+const logDirectory = path.resolve('logs')
 
 if (!fs.existsSync(logDirectory)) {
-  fs.mkdirSync(logDirectory, { recursive: true });
+  fs.mkdirSync(logDirectory, { recursive: true })
 }
-const customColors = { error: 'red', warn: 'yellow', info: 'blue', debug: 'green' };
-winston.addColors(customColors);
+const customColors = {
+  error: 'red',
+  warn: 'yellow',
+  info: 'blue',
+  debug: 'green'
+}
+winston.addColors(customColors)
 
 // Create a logger instance
 const logger = winston.createLogger({
@@ -17,7 +22,7 @@ const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.printf(({ timestamp, level, message }) => {
-      return `${timestamp} [${level.toUpperCase()}]: ${message}`;
+      return `${timestamp} [${level.toUpperCase()}]: ${message}`
     })
   ),
   transports: [
@@ -25,9 +30,9 @@ const logger = winston.createLogger({
       format: winston.format.combine(
         winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
         winston.format.printf(({ timestamp, level, message }) => {
-          return `${timestamp} [${level.toUpperCase()}]: ${message}`;
+          return `${timestamp} [${level.toUpperCase()}]: ${message}`
         }),
-        winston.format.colorize({ all: true }),
+        winston.format.colorize({ all: true })
       )
     }),
 
@@ -40,8 +45,5 @@ const logger = winston.createLogger({
       : false
   ].filter(Boolean)
 })
-
-
-
 
 module.exports = logger

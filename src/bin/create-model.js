@@ -18,13 +18,14 @@ const createModel = (modelName) => {
 
   const modelTemplate = `
 // ${modelLowercase}.model.js
-const { Schema, model } = require('mongoose');
+const { Schema, model } = require('mongoose')
 
 const ${model}Schema = new Schema({
   // Define schema for ${model}
 });
 
-module.exports = model('${model}', ${model}Schema);
+const ${model} = model('${model}', ${model}Schema)
+module.exports = ${model}
 `
 
   // Create the models directory if it doesn't exist
