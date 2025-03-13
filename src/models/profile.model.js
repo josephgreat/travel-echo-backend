@@ -39,7 +39,7 @@ const ProfileSchema = new Schema({
   languages: {
     type: [String]
   }
-})
+}, { timestamps: true })
 
 ProfileSchema.pre('save', async function (next) {
   if (this.isModified('dateOfBirth')) {

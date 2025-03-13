@@ -4,7 +4,7 @@ const repository = require('#database/repository')
 module.exports = {
   // Controller methods for profile,
   createProfile: () => repository('profile').POST(),
-  getProfiles: () => repository('profile').GET(),
+  getProfile: () => repository('profile').GET(),
   updateProfile: () => repository('profile').UPDATE(),
 
   //Profile Image

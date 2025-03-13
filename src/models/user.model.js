@@ -20,8 +20,16 @@ const UserSchema = new Schema({
   role: {
     type: String,
     default: 'USER'
+  },
+  verified: {
+    type: Boolean,
+    default: false
+  },
+  profile: {
+    type: Schema.Types.ObjectId,
+    ref: 'Profile'
   }
-})
+}, { timestamps: true })
 
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password)

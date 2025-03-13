@@ -1,6 +1,6 @@
-const env = require('#utils/env')
 const User = require('#models/user.model')
-const jwt = require('jsonwebtoken')
+const Profile = require('#models/profile.model')
+const { createObjectFromFields } = require('#utils/helpers')
 
 module.exports = async (req, res) => {
   const { name, email, password } = req.body
@@ -17,24 +17,22 @@ module.exports = async (req, res) => {
 
     // Create a new user
     const newUser = new User({ name, email, password })
-    await newUser.save()
+    const userProfile = new Profile({ user: newUser._id })
 
-    // Generate JWT
-    const token = jwt.sign(
-      { userId: newUser._id, email: newUser.email },
-      env.get('JWT_SECRET'),
-      { expiresIn: '1d' }
-    )
+    newUser.profile = userProfile._id
+    await newUser.save()
+    await userProfile.save()
 
     return res.status(201).json({
       success: true,
       message: 'User registered successfully',
-      user: {
-        id: newUser._id,
-        email: newUser.email,
-        name: newUser.name,
-        token
-      }
+      user: createObjectFromFields(newUser.toObject(), [
+        '_id',
+        'name',
+        'email',
+        'role',
+        'profile'
+      ])
     })
   } catch (error) {
     return res.status(500).json({

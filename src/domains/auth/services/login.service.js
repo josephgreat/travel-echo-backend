@@ -1,12 +1,14 @@
 const env = require('#utils/env')
 const User = require('#models/user.model')
 const jwt = require('jsonwebtoken')
+const { createObjectFromFields } = require('#utils/helpers')
+
 
 module.exports = async (req, res, next) => {
   const { email, password } = req.body
 
   try {
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email }).select('+password')
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -32,9 +34,13 @@ module.exports = async (req, res, next) => {
       success: true,
       message: 'Login successful',
       user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
+        ...createObjectFromFields(user.toObject(), [
+          '_id',
+          'name',
+          'email',
+          'role',
+          'profile'
+        ]),
         token
       }
     })

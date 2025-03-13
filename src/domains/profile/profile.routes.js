@@ -6,7 +6,7 @@ const fileUpload = require('express-fileupload')
 
 const router = Router()
 
-router.get('/:id?', ProfileController.getProfiles())
+router.get('/:id?', ProfileController.getProfile())
 router.post('/', ProfileController.createProfile())
 router.put('/:id', ProfileController.updateProfile())
 

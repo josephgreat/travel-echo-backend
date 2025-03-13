@@ -10,8 +10,8 @@ const router = Router()
 
 //Register all routes here
 const routes = () => {
-  router.use('/auth', authRoutes)
-  router.use('/profiles', authenticate('USER'), profileRoutes)
+  router.use('/api/auth', authRoutes)
+  router.use('/api/profiles', authenticate('USER'), profileRoutes)
 
   return router
 }
