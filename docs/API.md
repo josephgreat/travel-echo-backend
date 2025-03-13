@@ -67,8 +67,8 @@ http://localhost:6291
 ## **👤 User Profiles**  
 
 ### **1️⃣ Get User Profile**  
-- **Endpoint:** `GET /api/profiles/:id` (_Get user profile by profile ID_)
-- **Endpoint:** `GET /api/profiles/:id?key=user` (_Get user profile by user ID_)
+- **Endpoint:** `GET /api/profiles/<profile_id>` (_Get user profile by profile ID_)
+- **Endpoint:** `GET /api/profiles/<user_id>?key=user` (_Get user profile by user ID_)
 - **Authorization:** `Bearer Token Required`  
 - **Response:**  
   ```json
@@ -81,7 +81,7 @@ http://localhost:6291
 ---
 
 ### **2️⃣ Update User Profile**  
-- **Endpoint:** `PUT /api/profiles/:id`  
+- **Endpoint:** `PUT /api/profiles/<profile_id>`  
 - **Authorization:** `Bearer Token Required`  
 - **Request Body (example):**  
   ```json
@@ -102,7 +102,7 @@ http://localhost:6291
 ---
 
 ### **3️⃣ Upload User Profile Image**
-- **Endpoint:** `PUT /api/profiles/image/:profile_or_user_id`
+- **Endpoint:** `PUT /api/profiles/image/<profile_or_user_id>`
 - **Authorization:** `Bearer Token Required`
 - **Request Body:** `FormData`
 - **Response**: 
@@ -117,7 +117,7 @@ http://localhost:6291
 ---
 
 ### **4️⃣ Remove User Profile Image**
-- **Endpoint:** `DELETE /api/profiles/image/:profile_or_user_id`
+- **Endpoint:** `DELETE /api/profiles/image/<profile_or_user_id>`
 - **Authorization:** `Bearer Token Required`
 - **Response**: 
   ```json
