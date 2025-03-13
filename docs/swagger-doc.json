@@ -7,73 +7,9 @@
   },
   "host": "http://localhost:6291",
   "basePath": "/",
-  "schemes": ["http", "https"],
-  "paths": {
-    "/auth/login": {
-      "post": {
-        "description": "",
-        "responses": {
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/auth/register": {
-      "post": {
-        "description": "",
-        "responses": {
-          "400": {
-            "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/profiles/{id?}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id?",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/profiles/": {
-      "post": {
-        "description": "",
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/profiles/{id}": {
-      "put": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    }
-  }
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "paths": {}
 }

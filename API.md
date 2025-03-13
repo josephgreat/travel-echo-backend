@@ -78,6 +78,8 @@ http://localhost:6291
   }
   ```
 
+---
+
 ### **2️⃣ Update User Profile**  
 - **Endpoint:** `PUT /api/profiles/:id`  
 - **Authorization:** `Bearer Token Required`  
@@ -97,3 +99,32 @@ http://localhost:6291
   }
   ```
 
+---
+
+### **3️⃣ Upload User Profile Image**
+- **Endpoint:** `PUT /api/profiles/image/:id`
+- **Authorization:** `Bearer Token Required`
+- **Request Body:** `FormData`
+- **Response**: 
+  ```json
+  {
+    "success": true,
+    "message": "Profile image uploaded successfully.",
+    "imageUrl": "http://res.cloudinary.com/.../image.jpg"
+  }
+  ```
+
+---
+
+### **4️⃣ Remove User Profile Image**
+- **Endpoint:** `DELETE /api/profiles/image/:id`
+- **Authorization:** `Bearer Token Required`
+- **Response**: 
+  ```json
+  {
+    "success": true,
+    "message": "Profile image removed successfully.",
+  }
+  ```
+  
+---
