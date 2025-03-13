@@ -1,10 +1,10 @@
 const { Router } = require('express')
 
 //Import routes
-const authRoutes = require('../domains/auth/auth.routes')
-const profileRoutes = require('../domains/profile/profile.routes')
+const authRoutes = require('#domains/auth/auth.routes')
+const profileRoutes = require('#domains/profile/profile.routes')
 
-const authenticate = require('../middleware/authenticate')
+const authenticate = require('#middleware/authenticate')
 
 const router = Router()
 

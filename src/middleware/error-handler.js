@@ -1,6 +1,6 @@
-const { IS_PRODUCTION_ENV } = require('../utils/constants')
+const { IS_PRODUCTION_ENV } = require('#utils/constants')
 
-const logger = require('../utils/logger')
+const logger = require('#utils/logger')
 
 // eslint-disable-next-line no-unused-vars
 module.exports = (err, req, res, next) => {

@@ -1,7 +1,7 @@
 const passport = require('passport')
 const { ExtractJwt, Strategy } = require('passport-jwt')
-const User = require('../models/user.model')
-const env = require('../utils/env')
+const User = require('#models/user.model')
+const env = require('#utils/env')
 
 const JWT_SECRET = env.get('JWT_SECRET', 'jwt-secret')
 const jwtOptions = {
@@ -14,7 +14,7 @@ passport.use(
     try {
       const user = await User.findById(payload.userId).lean()
       if (!user) {
-        return done(null, false, { message: "User not found" });
+        return done(null, false, { message: 'User not found' })
       }
       //Add more fields as needed
       const authenticatedUser = {
@@ -25,7 +25,7 @@ passport.use(
       }
       return done(null, authenticatedUser)
     } catch (err) {
-      return done(err, false, { message: "Authentication error" })
+      return done(err, false, { message: 'Authentication error' })
     }
   })
 )

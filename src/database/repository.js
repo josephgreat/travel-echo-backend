@@ -1,4 +1,5 @@
-const logger = require('./logger')
+const { toTitleCase } = require('#utils/helpers')
+const logger = require('#utils/logger')
 
 const repository = (modelName) => {
   const Model = require(`../models/${modelName}.model`)
@@ -9,7 +10,9 @@ const repository = (modelName) => {
   }
 
   return {
-    GET: (onBeforeEnd) => {
+    GET: (options = {}) => {
+      const { onBeforeEnd, saveModified = false } = options
+
       return async (req, res, next) => {
         try {
           const { id } = req.params
@@ -20,7 +23,9 @@ const repository = (modelName) => {
           // If an ID is provided, fetch a single document
           if (id) {
             const parsedKey = key?.toString()
-            query = parsedKey ? Model.findOne({ [parsedKey] : id }) : Model.findById(id)
+            query = parsedKey
+              ? Model.findOne({ [parsedKey]: id })
+              : Model.findById(id)
           } else {
             query = Model.find()
             // Handling multiple "where" conditions (where=name,john&where=age,30)
@@ -89,7 +94,11 @@ const repository = (modelName) => {
                 populateParams.forEach((popItem) => {
                   const [path, ...fields] = popItem.split(',')
                   if (path) {
-                    query = query.populate(fields.length ? { path, select: fields.join(' ') } : { path });
+                    query = query.populate(
+                      fields.length
+                        ? { path, select: fields.join(' ') }
+                        : { path }
+                    )
                   }
                 })
               } catch (err) {
@@ -110,6 +119,10 @@ const repository = (modelName) => {
             updatedData = await onBeforeEnd(result)
           }
 
+          if (saveModified) {
+            await updatedData.save()
+          }
+
           res.status(200).json({ success: true, data: updatedData || result })
         } catch (err) {
           next(err)
@@ -117,10 +130,12 @@ const repository = (modelName) => {
       }
     },
 
-    POST: (onBeforeCreate, onBeforeEnd, saveModified = false) => {
+    POST: (options = {}) => {
+      const { onBeforeCreate, onBeforeEnd, saveModified = false } = options
+
       return async (req, res, next) => {
         const data = req.body
-        if (!data || (Object.keys(data).length < 1)) {
+        if (!data || Object.keys(data).length < 1) {
           return res.status(400).json({
             success: false,
             message: 'No data provided.'
@@ -129,26 +144,30 @@ const repository = (modelName) => {
 
         try {
           const parsedData = onBeforeCreate?.(data) ?? data
-          const result = await Model.create(parsedData);
-          const responseData = onBeforeEnd?.(result) ?? result;
+          const result = await Model.create(parsedData)
+          const responseData = onBeforeEnd?.(result) ?? result
           if (saveModified) {
             await responseData.save()
           }
-          
+
           return res.status(201).json({
             success: true,
             data: responseData
-          });
+          })
         } catch (error) {
           next(error)
         }
       }
     },
 
-    UPDATE: (onBeforeUpdate, onBeforeEnd, saveModified = false) => {
+    UPDATE: (options = {}) => {
+      const { onBeforeUpdate, onBeforeEnd, saveModified = false } = options
+
       return async (req, res, next) => {
+        const { id } = req.params
+
         const data = req.body
-        if (!data || (Object.keys(data).length < 1)) {
+        if (!data || Object.keys(data).length < 1) {
           return res.status(400).json({
             success: false,
             message: 'No data provided.'
@@ -157,17 +176,90 @@ const repository = (modelName) => {
 
         try {
           const parsedData = onBeforeUpdate?.(data) ?? data
-          const result = await Model.update(parsedData, { new: true });
-          const responseData = onBeforeEnd?.(result) ?? result;
+          const result = await Model.findByIdAndUpdate(id, parsedData, {
+            new: true
+          })
+          const responseData = onBeforeEnd?.(result) ?? result
 
           if (saveModified) {
             await responseData.save()
           }
-          
-          return res.status(201).json({
+
+          return res.status(200).json({
             success: true,
             data: responseData
-          });
+          })
+        } catch (error) {
+          next(error)
+        }
+      }
+    },
+
+    DELETE: (options = {}) => {
+      const { onBeforeDelete, onBeforeEnd } = options
+
+      return async (req, res, next) => {
+        const { id } = req.params
+        const { where } = req.query
+
+        if (!id && !where) {
+          return res.status(400).json({
+            success: false,
+            message: 'Either ID or query parameter "where" must be provided.'
+          })
+        }
+
+        if (id && where) {
+          return res.status(400).json({
+            success: false,
+            message:
+              'Only one of the ID or "where" query parameter must be provided.'
+          })
+        }
+
+        try {
+          let deleteCondition = {}
+
+          if (id) {
+            deleteCondition = { _id: id }
+          }
+
+          if (where) {
+            const whereConditions = Array.isArray(where) ? where : [where]
+
+            for (const condition of whereConditions) {
+              const [key, value] = condition.split(',')
+
+              if (!key || !value) {
+                return res.status(400).json({
+                  success: false,
+                  message:
+                    'Invalid "where" query parameter format. Expected "key,value".'
+                })
+              }
+              deleteCondition[key] = value
+            }
+          }
+
+          const finalCondition =
+            onBeforeDelete?.(deleteCondition) ?? deleteCondition
+
+          const result = await Model.findOneAndDelete(finalCondition)
+
+          if (!result) {
+            return res.status(404).json({
+              success: false,
+              message: `${toTitleCase(modelName)} not found.`
+            })
+          }
+
+          const responseData = onBeforeEnd?.(result) ?? result
+
+          return res.status(200).json({
+            success: true,
+            message: `${toTitleCase(modelName)} deleted successfully.`,
+            data: responseData
+          })
         } catch (error) {
           next(error)
         }

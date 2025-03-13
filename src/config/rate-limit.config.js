@@ -1,7 +1,7 @@
 const { rateLimit } = require('express-rate-limit')
 const MongoStore = require('rate-limit-mongo')
-const env = require('../utils/env')
-const logger = require('../utils/logger')
+const env = require('#utils/env')
+const logger = require('#utils/logger')
 
 const limiter = rateLimit({
   store: new MongoStore({

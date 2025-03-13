@@ -1,12 +1,14 @@
 require('express-async-errors')
 const express = require('express')
-const errorHandler = require('./middleware/error-handler')
-const initializeDatabase = require('./config/database.config')
-const corsConfig = require('./config/cors.config')
+const errorHandler = require('#middleware/error-handler')
+const initializeDatabase = require('#database/db')
+const initializeCloudinary = require('#config/cloudinary.config')
+const corsConfig = require('#config/cors.config')
 //const limiter = require('./config/rate-limit.config')
 const routes = require('./routes')
 
 initializeDatabase()
+initializeCloudinary()
 
 const app = express()
 

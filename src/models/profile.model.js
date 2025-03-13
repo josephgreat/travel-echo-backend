@@ -1,7 +1,7 @@
 // profile.model.js
 const { Schema, model } = require('mongoose')
-const { MINIMUM_AGE } = require('../utils/constants')
-const { computeAge } = require('../utils/helpers')
+const { MINIMUM_AGE } = require('#utils/constants')
+const { computeAge } = require('#utils/helpers')
 
 const ProfileSchema = new Schema({
   // Define schema for Profile
@@ -41,8 +41,6 @@ const ProfileSchema = new Schema({
   }
 })
 
-ProfileSchema.index({ user: 1 }, { unique: true })
-
 ProfileSchema.pre('save', async function (next) {
   if (this.isModified('dateOfBirth')) {
     const age = computeAge(this.dateOfBirth)
@@ -53,7 +51,6 @@ ProfileSchema.pre('save', async function (next) {
   }
   next()
 })
-
 
 const Profile = model('Profile', ProfileSchema)
 

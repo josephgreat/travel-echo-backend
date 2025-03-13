@@ -1,6 +1,6 @@
-const env = require('./utils/env')
-const logger = require('./utils/logger')
-const { IS_PRODUCTION_ENV } = require('./utils/constants')
+const env = require('#utils/env')
+const logger = require('#utils/logger')
+const { IS_PRODUCTION_ENV } = require('#utils/constants')
 const PORT = env.get('PORT', 5000)
 const app = require('./app')
 

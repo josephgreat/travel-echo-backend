@@ -6,7 +6,9 @@ module.exports = {
     const Schema = z.object({
       user: z
         .string({ message: 'User field is required' })
-        .refine((userId) => isValidObjectId(userId), { message: 'User field must be a valid MongoDB object ID'})
+        .refine((userId) => isValidObjectId(userId), {
+          message: 'User field must be a valid MongoDB object ID'
+        })
     })
 
     return async (req, res, next) => {

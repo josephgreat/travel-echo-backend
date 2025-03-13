@@ -1,4 +1,5 @@
 const { z } = require('zod')
+
 const Schema = z.object({
   name: z
     .string({ message: 'Name is required' })
