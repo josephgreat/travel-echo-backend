@@ -102,7 +102,7 @@ http://localhost:6291
 ---
 
 ### **3️⃣ Upload User Profile Image**
-- **Endpoint:** `PUT /api/profiles/image/:id`
+- **Endpoint:** `PUT /api/profiles/image/:profile_or_user_id`
 - **Authorization:** `Bearer Token Required`
 - **Request Body:** `FormData`
 - **Response**: 
@@ -117,7 +117,7 @@ http://localhost:6291
 ---
 
 ### **4️⃣ Remove User Profile Image**
-- **Endpoint:** `DELETE /api/profiles/image/:id`
+- **Endpoint:** `DELETE /api/profiles/image/:profile_or_user_id`
 - **Authorization:** `Bearer Token Required`
 - **Response**: 
   ```json

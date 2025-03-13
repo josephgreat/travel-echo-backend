@@ -15,12 +15,17 @@ module.exports = {
     }
   
     const file = Object.values(files)[0];
+
     if (!file) {
       return res.status(400).json({
         success: false,
         message: "No profile image uploaded",
       });
     }
+
+    const mimeType = file.mimetype
+    const base64Data = file.data.toString('base64')
+    const dataURI = `data:${mimeType};base64,${base64Data}`
    
   
     try {
@@ -39,7 +44,7 @@ module.exports = {
   
       const imagePublicId = `PROFILE-IMG-${userProfile._id.toString()}`
   
-      const result = await uploadCloudinaryAsset(file.data, {
+      const result = await uploadCloudinaryAsset(dataURI, {
         asset_folder: 'PROFILE_IMAGES',
         display_name: imagePublicId,
         public_id: imagePublicId
