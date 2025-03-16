@@ -1,4 +1,4 @@
-const { IS_PRODUCTION_ENV } = require('#utils/constants')
+//const { IS_PRODUCTION_ENV } = require('#utils/constants')
 
 const logger = require('#utils/logger')
 
@@ -16,10 +16,12 @@ module.exports = (err, req, res, next) => {
   const status = err.status ?? 500
   const data = err.data
 
-  let message =
+  let message = err.message || err
+
+ /*  let message =
     status >= 500 && IS_PRODUCTION_ENV
       ? "Something went wrong and we're working on it. Please try again later."
-      : err.message
+      : err.message */
 
   res.status(status).json({
     success: false,
