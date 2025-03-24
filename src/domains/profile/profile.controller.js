@@ -2,7 +2,7 @@ const repository = require('#database/repository')
 
 // profile.controller.js
 module.exports = {
-  // Controller methods for profile,
+  // Profile,
   createProfile: () => repository('profile').POST(),
   getProfile: () => repository('profile').GET(),
   updateProfile: () => repository('profile').UPDATE(),

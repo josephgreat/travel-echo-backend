@@ -1,9 +1,10 @@
 const { Router } = require('express')
 
-//Import routes
+//Routes
 const authRoutes = require('#domains/auth/auth.routes')
 const profileRoutes = require('#domains/profile/profile.routes')
 
+//Middleware
 const authenticate = require('#middleware/authenticate')
 
 const router = Router()

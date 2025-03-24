@@ -18,17 +18,16 @@ const ProfileSchema = new Schema({
   image: {
     type: String
   },
-  country: {
-    type: String
-  },
-  state: {
-    type: String
-  },
-  city: {
+  location: {
     type: String
   },
   school: {
-    type: String
+    name: {
+      type: String
+    },
+    country: {
+      type: String,
+    }
   },
   occupation: {
     type: String
