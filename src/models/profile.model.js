@@ -3,42 +3,45 @@ const { Schema, model } = require('mongoose')
 const { MINIMUM_AGE } = require('#utils/constants')
 const { computeAge } = require('#utils/helpers')
 
-const ProfileSchema = new Schema({
-  // Define schema for Profile
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    unique: true,
-    immutable: true
-  },
-  dateOfBirth: {
-    type: Date
-  },
-  image: {
-    type: String
-  },
-  location: {
-    type: String
-  },
-  school: {
-    name: {
+const ProfileSchema = new Schema(
+  {
+    // Define schema for Profile
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      unique: true,
+      immutable: true
+    },
+    dateOfBirth: {
+      type: Date
+    },
+    image: {
       type: String
     },
-    country: {
-      type: String,
+    location: {
+      type: String
+    },
+    school: {
+      name: {
+        type: String
+      },
+      country: {
+        type: String
+      }
+    },
+    occupation: {
+      type: String
+    },
+    interests: {
+      type: [String]
+    },
+    languages: {
+      type: [String]
     }
   },
-  occupation: {
-    type: String
-  },
-  interests: {
-    type: [String]
-  },
-  languages: {
-    type: [String]
-  }
-}, { timestamps: true })
+  { timestamps: true }
+)
 
 ProfileSchema.pre('save', async function (next) {
   if (this.isModified('dateOfBirth')) {

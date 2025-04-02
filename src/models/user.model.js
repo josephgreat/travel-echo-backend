@@ -1,35 +1,38 @@
 const { model, Schema } = require('mongoose')
 const bcrypt = require('bcrypt')
 
-const UserSchema = new Schema({
-  name: {
-    type: String,
-    required: true
+const UserSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true
+    },
+    password: {
+      type: String,
+      required: true,
+      select: false
+    },
+    role: {
+      type: String,
+      default: 'USER'
+    },
+    verified: {
+      type: Boolean,
+      default: false
+    },
+    profile: {
+      type: Schema.Types.ObjectId,
+      ref: 'Profile'
+    }
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    index: true
-  },
-  password: {
-    type: String,
-    required: true,
-    select: false
-  },
-  role: {
-    type: String,
-    default: 'USER'
-  },
-  verified: {
-    type: Boolean,
-    default: false
-  },
-  profile: {
-    type: Schema.Types.ObjectId,
-    ref: 'Profile'
-  }
-}, { timestamps: true })
+  { timestamps: true }
+)
 
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password)

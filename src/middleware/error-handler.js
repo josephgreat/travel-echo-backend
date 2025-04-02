@@ -18,7 +18,7 @@ module.exports = (err, req, res, next) => {
 
   let message = err.message || err
 
- /*  let message =
+  /*  let message =
     status >= 500 && IS_PRODUCTION_ENV
       ? "Something went wrong and we're working on it. Please try again later."
       : err.message */

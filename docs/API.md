@@ -1,24 +1,26 @@
 # **📌 Travel Echo API Documentation**
 
-## **🌐 Base URL**  
+## **🌐 Base URL**
+
 ```http
 http://localhost:6291
 ```
 
 ---
 
-## **🔒 Authentication**  
+## **🔒 Authentication**
 
-### **1️⃣ Log In**  
-- **Endpoint:** `POST /api/auth/login`  
-- **Request Body:**  
+### **1️⃣ Log In**
+
+- **Endpoint:** `POST /api/auth/login`
+- **Request Body:**
   ```json
   {
     "email": "user@example.com",
     "password": "yourpassword"
   }
   ```
-- **Response:**  
+- **Response:**
   ```json
   {
     "success": "true",
@@ -36,9 +38,10 @@ http://localhost:6291
 
 ---
 
-### **2️⃣ Register**  
-- **Endpoint:** `POST /api/auth/register`  
-- **Request Body:**  
+### **2️⃣ Register**
+
+- **Endpoint:** `POST /api/auth/register`
+- **Request Body:**
   ```json
   {
     "name": "John Doe",
@@ -47,7 +50,7 @@ http://localhost:6291
     "confirmPassword": "yourpassword"
   }
   ```
-- **Response:**  
+- **Response:**
   ```json
   {
     "success": true,
@@ -64,13 +67,14 @@ http://localhost:6291
 
 ---
 
-## **👤 User Profiles**  
+## **👤 User Profiles**
 
-### **1️⃣ Get User Profile**  
+### **1️⃣ Get User Profile**
+
 - **Endpoint:** `GET /api/profiles/<profile_id>` (_Get user profile by profile ID_)
 - **Endpoint:** `GET /api/profiles/<user_id>?key=user` (_Get user profile by user ID_)
-- **Authorization:** `Bearer Token Required`  
-- **Response:**  
+- **Authorization:** `Bearer Token Required`
+- **Response:**
   ```json
   {
     "success": true,
@@ -80,10 +84,11 @@ http://localhost:6291
 
 ---
 
-### **2️⃣ Update User Profile**  
-- **Endpoint:** `PUT /api/profiles/<profile_id>`  
-- **Authorization:** `Bearer Token Required`  
-- **Request Body (example):**  
+### **2️⃣ Update User Profile**
+
+- **Endpoint:** `PUT /api/profiles/<profile_id>`
+- **Authorization:** `Bearer Token Required`
+- **Request Body (example):**
   ```json
   {
     "country": "Canada",
@@ -91,7 +96,7 @@ http://localhost:6291
     "languages": ["English", "French", "German"]
   }
   ```
-- **Response:**  
+- **Response:**
   ```json
   {
     "message": "Profile updated successfully",
@@ -102,10 +107,11 @@ http://localhost:6291
 ---
 
 ### **3️⃣ Upload User Profile Image**
+
 - **Endpoint:** `PUT /api/profiles/image/<profile_or_user_id>`
 - **Authorization:** `Bearer Token Required`
 - **Request Body:** `FormData`
-- **Response**: 
+- **Response**:
   ```json
   {
     "success": true,
@@ -117,14 +123,15 @@ http://localhost:6291
 ---
 
 ### **4️⃣ Remove User Profile Image**
+
 - **Endpoint:** `DELETE /api/profiles/image/<profile_or_user_id>`
 - **Authorization:** `Bearer Token Required`
-- **Response**: 
+- **Response**:
   ```json
   {
     "success": true,
-    "message": "Profile image removed successfully.",
+    "message": "Profile image removed successfully."
   }
   ```
-  
+
 ---

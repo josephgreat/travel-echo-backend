@@ -3,7 +3,6 @@ const User = require('#models/user.model')
 const jwt = require('jsonwebtoken')
 const { createObjectFromFields } = require('#utils/helpers')
 
-
 module.exports = async (req, res, next) => {
   const { email, password } = req.body
 

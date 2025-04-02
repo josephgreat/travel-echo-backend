@@ -28,6 +28,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.12.0",
     "mongoose": "^8.9.4",
+    "nodemailer": "^6.10.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "rate-limit-mongo": "^2.3.2",
@@ -50,6 +51,7 @@
     "#middleware/*": "./src/middleware/*.js",
     "#models/*": "./src/models/*.js",
     "#routes/*": "./src/routes/*.js",
+    "#templates/*": "./src/templates/*.js",
     "#utils/*": "./src/utils/*.js"
   }
 }

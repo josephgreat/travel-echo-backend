@@ -8,6 +8,8 @@ module.exports = {
   updateProfile: () => repository('profile').UPDATE(),
 
   //Profile Image
-  uploadProfileImage: () => require('./services/profile-image.service').uploadProfileImage,
-  removeProfileImage: () => require('./services/profile-image.service').removeProfileImage
+  uploadProfileImage: () =>
+    require('./services/profile-image.service').uploadProfileImage,
+  removeProfileImage: () =>
+    require('./services/profile-image.service').removeProfileImage
 }
