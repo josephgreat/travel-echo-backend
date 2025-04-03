@@ -2,7 +2,7 @@ const User = require('#models/user.model')
 const Profile = require('#models/profile.model')
 const { createObjectFromFields } = require('#utils/helpers')
 
-module.exports = async (req, res) => {
+module.exports = async (req, res, next) => {
   const { name, email, password } = req.body
 
   try {
@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'Email already in use'
+        message: 'Email already in use. Try logging in instead.'
       })
     }
 
@@ -20,12 +20,13 @@ module.exports = async (req, res) => {
     const userProfile = new Profile({ user: newUser._id })
 
     newUser.profile = userProfile._id
+
     await newUser.save()
     await userProfile.save()
 
     return res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'User registered successfully.',
       user: createObjectFromFields(newUser.toObject(), [
         '_id',
         'name',
@@ -35,10 +36,6 @@ module.exports = async (req, res) => {
       ])
     })
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: 'An error occurred while registering user',
-      error: error.message
-    })
+    next(error)
   }
 }

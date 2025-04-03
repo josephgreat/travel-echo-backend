@@ -67,6 +67,25 @@ http://localhost:6291
 
 ---
 
+### **3️⃣ Send OTP**
+
+- **Endpoint:** `POST /api/auth/otp`
+- **Request Body:**
+  ```json
+  {
+    "email": "user@example.com"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "OTP sent to email successfully."
+  }
+  ```
+
+---
+
 ## **👤 User Profiles**
 
 ### **1️⃣ Get User Profile**

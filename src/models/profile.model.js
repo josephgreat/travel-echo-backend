@@ -1,11 +1,9 @@
-// profile.model.js
 const { Schema, model } = require('mongoose')
 const { MINIMUM_AGE } = require('#utils/constants')
 const { computeAge } = require('#utils/helpers')
 
 const ProfileSchema = new Schema(
   {
-    // Define schema for Profile
     user: {
       type: Schema.Types.ObjectId,
       ref: 'User',

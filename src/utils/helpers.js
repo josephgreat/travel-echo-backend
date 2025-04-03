@@ -126,7 +126,17 @@ const helpers = {
     }
     return pin
   },
-
+  
+  /**
+ * Generates a random string based on length or pattern.
+ * 
+ * - If `lengthOrPattern` is a number, it generates a random string of that length.
+ * - If `lengthOrPattern` is a pattern (e.g., "9aA"), it replaces '9' with a digit, 'a' with a lowercase letter, and 'A' with an uppercase letter.
+ * 
+ * @param {number | string} lengthOrPattern - The length of the random string or a pattern (e.g., "9aA").
+ * @param {'numeric' | 'num' | 'alphabetic' | 'alpha' | 'uppercase' | 'alphanumeric' | 'alphanum'} [type='alphanumeric'] - The type of characters to use (only used when `lengthOrPattern` is a number).
+ * @returns {string} A randomly generated string based on the given constraints.
+ */
   randomString(lengthOrPattern, type) {
     const DEFAULT_STR_LENGTH = 16
     // Define character sets
@@ -191,7 +201,13 @@ const helpers = {
     })
   },
 
-  setTokenExpiry(validityPeriod) {
+  /**
+ * Sets an expiry date based on a validity period string.
+ * @param {string} validityPeriod - A string like "10 minutes" or "2 hours".
+ * @returns {Date} The expiry date and time.
+ * @throws {Error} If the time unit is invalid.
+ */
+  setExpiryDate(validityPeriod) {
     const [n, t] = validityPeriod.split(' ')
     const num = parseInt(n, 10)
     let multiplier
@@ -209,10 +225,14 @@ const helpers = {
     return new Date(expiryTime)
   },
 
-  isTokenExpired(expiryTime) {
-    const currentTime = Date.now()
-    return new Date(currentTime) > new Date(expiryTime)
-  }
+  /**
+ * Checks if the supplied date has expired.
+ * @param {Date | string | number} expiryTime - The expiry time as a Date object, timestamp, or ISO string.
+ * @returns {boolean} True if expired, otherwise false.
+ */
+isDateExpired(expiryTime) {
+  return Date.now() > new Date(expiryTime).getTime();
+}
 }
 
 module.exports = helpers
