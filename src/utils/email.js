@@ -13,38 +13,33 @@ const env = require('./env')
  * @param {string} [options.html] - HTML version of the message.
  * @param {Object.<string, any>} [options.rest] - Additional email options to pass to Nodemailer.
  *                                                 See: https://nodemailer.com/message/
- * @returns {Promise<[Error|null, Object|null]>} A promise resolving to `[error, info]`,
- *                                               where `error` is null on success and `info` is null on failure.
- *                                               For the info object, see: https://nodemailer.com/usage/
- * @throws {Error} If an unexpected issue occurs with the transporter.
+ * @returns {Promise<Object>} A promise resolving to the Nodemailer info object on success.
+ *                            See: https://nodemailer.com/usage/
+ * @throws {Error} If email sending fails or if there's an issue with the transporter.
  * @example
- * const [error, info] = await sendMail({
- *   to: 'recipient@example.com',
- *   subject: 'Hello',
- *   text: 'Hello world',
- *   html: '<p>Hello world</p>'
- * });
- *
- * if (error) {
- *   console.error('Failed to send email:', error);
- * } else {
+ * try {
+ *   const info = await sendMail({
+ *     to: 'recipient@example.com',
+ *     subject: 'Hello',
+ *     text: 'Hello world',
+ *     html: '<p>Hello world</p>'
+ *   });
  *   console.log('Email sent successfully:', info);
+ * } catch (error) {
+ *   console.error('Failed to send email:', error);
  * }
  */
 const sendMail = async ({ to, subject, text, html, ...rest }) => {
-  try {
-    const info = await transporter.sendMail({
-      from: { name: env.get('APP_Name'), address: env.get('EMAIL_USER') },
-      to,
-      subject,
-      text,
-      html,
-      ...(Object.keys(rest).length && rest)
-    })
-    return [null, info]
-  } catch (error) {
-    return [error, null]
-  }
+  const info = await transporter.sendMail({
+    from: { name: env.get('APP_Name'), address: env.get('EMAIL_USER') },
+    to,
+    subject,
+    text,
+    html,
+    ...(Object.keys(rest).length && rest)
+  })
+
+  return info
 }
 
 module.exports = {

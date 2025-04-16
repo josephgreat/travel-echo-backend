@@ -1,6 +1,8 @@
 const cloudinary = require('cloudinary')
 const logger = require('./logger')
 const crypto = require('node:crypto')
+const jwt = require('jsonwebtoken')
+const env = require('#utils/env')
 
 const helpers = {
   computeAge(dateOfBirth) {
@@ -126,17 +128,17 @@ const helpers = {
     }
     return pin
   },
-  
+
   /**
- * Generates a random string based on length or pattern.
- * 
- * - If `lengthOrPattern` is a number, it generates a random string of that length.
- * - If `lengthOrPattern` is a pattern (e.g., "9aA"), it replaces '9' with a digit, 'a' with a lowercase letter, and 'A' with an uppercase letter.
- * 
- * @param {number | string} lengthOrPattern - The length of the random string or a pattern (e.g., "9aA").
- * @param {'numeric' | 'num' | 'alphabetic' | 'alpha' | 'uppercase' | 'alphanumeric' | 'alphanum'} [type='alphanumeric'] - The type of characters to use (only used when `lengthOrPattern` is a number).
- * @returns {string} A randomly generated string based on the given constraints.
- */
+   * Generates a random string based on length or pattern.
+   *
+   * - If `lengthOrPattern` is a number, it generates a random string of that length.
+   * - If `lengthOrPattern` is a pattern (e.g., "9aA"), it replaces '9' with a digit, 'a' with a lowercase letter, and 'A' with an uppercase letter.
+   *
+   * @param {number | string} lengthOrPattern - The length of the random string or a pattern (e.g., "9aA").
+   * @param {'numeric' | 'num' | 'alphabetic' | 'alpha' | 'uppercase' | 'alphanumeric' | 'alphanum'} [type='alphanumeric'] - The type of characters to use (only used when `lengthOrPattern` is a number).
+   * @returns {string} A randomly generated string based on the given constraints.
+   */
   randomString(lengthOrPattern, type) {
     const DEFAULT_STR_LENGTH = 16
     // Define character sets
@@ -202,11 +204,11 @@ const helpers = {
   },
 
   /**
- * Sets an expiry date based on a validity period string.
- * @param {string} validityPeriod - A string like "10 minutes" or "2 hours".
- * @returns {Date} The expiry date and time.
- * @throws {Error} If the time unit is invalid.
- */
+   * Sets an expiry date based on a validity period string.
+   * @param {string} validityPeriod - A string like "10 minutes" or "2 hours".
+   * @returns {Date} The expiry date and time.
+   * @throws {Error} If the time unit is invalid.
+   */
   setExpiryDate(validityPeriod) {
     const [n, t] = validityPeriod.split(' ')
     const num = parseInt(n, 10)
@@ -226,13 +228,37 @@ const helpers = {
   },
 
   /**
- * Checks if the supplied date has expired.
- * @param {Date | string | number} expiryTime - The expiry time as a Date object, timestamp, or ISO string.
- * @returns {boolean} True if expired, otherwise false.
- */
-isDateExpired(expiryTime) {
-  return Date.now() > new Date(expiryTime).getTime();
-}
+   * Checks if the supplied date has expired.
+   * @param {Date | string | number} expiryTime - The expiry time as a Date object, timestamp, or ISO string.
+   * @returns {boolean} True if expired, otherwise false.
+   */
+  isDateExpired(expiryTime) {
+    return Date.now() > new Date(expiryTime).getTime()
+  },
+
+  /**
+   * Signs a JWT token for authentication
+   *
+   * @param {Object} user - The user object to encode in the token
+   * @param {string|Object} user._id - The user's unique identifier
+   * @param {string} user.email - The user's email address
+   * @param {import('jsonwebtoken').SignOptions} [options={}] - JWT sign options
+   * @param {string|number} [options.expiresIn='1h'] - Token expiration time
+   * @returns {string} The signed JWT token
+   * @see https://github.com/auth0/node-jsonwebtoken#jwtsignpayload-secretorprivatekey-options-callback
+   */
+  signJWT(user, options = {}) {
+    const signOptions = {
+      expiresIn: '1h',
+      ...options
+    }
+
+    return jwt.sign(
+      { userId: user._id, email: user.email },
+      env.get('JWT_SECRET'),
+      signOptions
+    )
+  }
 }
 
 module.exports = helpers

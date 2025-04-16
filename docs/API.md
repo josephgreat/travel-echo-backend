@@ -41,6 +41,8 @@ http://localhost:6291
 ### **2️⃣ Register**
 
 - **Endpoint:** `POST /api/auth/register`
+- **Headers:**
+  - `Content-Type: application/json`
 - **Request Body:**
   ```json
   {
@@ -58,18 +60,19 @@ http://localhost:6291
     "user": {
       "_id": "67d2ac7ffc1e7c3b201926ab",
       "name": "John Doe",
-      "email": "user@example.com",
-      "role": "USER",
-      "profile": "67d2ac7ffc1e7c3b201926ac"
+      "email": "user@example.com"
     }
   }
   ```
 
 ---
 
-### **3️⃣ Send OTP**
+### **3️⃣ Account Verification: Step 1**
 
-- **Endpoint:** `POST /api/auth/otp`
+- **Endpoint:** `POST /api/auth/verification/send-otp`
+- **Description**: Sends a One-Time Password (OTP) to the user's email for account verification.
+- **Headers:**
+  - `Content-Type: application/json`
 - **Request Body:**
   ```json
   {
@@ -85,6 +88,110 @@ http://localhost:6291
   ```
 
 ---
+
+### **4️⃣ Account Verification: Step 2**
+
+- **Endpoint:** `POST /api/auth/verification/verify`
+- **Description**: Validates the OTP and verifies the user's account.
+- **Headers:**
+  - `Content-Type: application/json`
+- **Request Body:**
+  ```json
+  {
+    "email": "user@example.com",
+    "otp": "123456"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "OTP validated successfully."
+  }
+  ```
+
+---
+
+### **5️⃣ Account Recovery: Step 1**
+
+- **Endpoint:** `POST /api/auth/recovery/send-otp`
+- **Description**: Sends an OTP to the provided email.
+- **Headers:**
+  - `Content-Type: application/json`
+- **Request Body:**
+  ```json
+  {
+    "email": "user@example.com"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "OTP sent to email successfully",
+    "user": {
+      "_id": "67d2ac7ffc1e7c3b201926ab",
+      "name": "John Doe",
+      "email": "johndoe@example.com"
+    }
+  }
+  ```
+
+---
+
+### **6️⃣ Account Recovery: Step 2**
+
+- **Endpoint:** `POST /api/auth/recovery/verify-otp`
+- **Description**: Verifies the OTP sent to the user's email.
+- **Headers:**
+  - `Content-Type: application/json`
+- **Request Body:**
+  ```json
+  {
+    "email": "user@example.com",
+    "otp": "123456"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "OTP verified successfully.",
+    "user": {
+      "_id": "67d2ac7ffc1e7c3b201926ab",
+      "name": "John Doe",
+      "email": "johndoe@example.com"
+    }
+  }
+  ```
+
+---
+
+### **7️⃣ Account Recovery: Step 3**
+
+- **Endpoint:** `POST /api/auth/recovery/reset-password`
+- **Description**: Resets the user's password.
+- **Headers:**
+  - `Content-Type: application/json`
+- **Request Body:**
+  ```json
+  {
+    "email": "user@example.com",
+    "password": "password12345",
+    "confirmPassword": "password12345"
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": true,
+    "message": "Password reset successfully."
+  }
+  ```
+
+---
+
+
 
 ## **👤 User Profiles**
 

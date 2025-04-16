@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Page</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .login-container {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+      }
+      .login-container h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      .login-button,
+      .google-button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      .login-button {
+        background-color: #007bff;
+        color: #fff;
+        margin-bottom: 10px;
+      }
+      .google-button {
+        background-color: #db4437;
+        color: #fff;
+      }
+      .google-button:hover {
+        background-color: #c33d2e;
+      }
+      .login-button:hover {
+        background-color: #0056b3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h1>Login</h1>
+      <form>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+        <button type="submit" class="login-button">Login</button>
+      </form>
+      <button class="google-button">Sign in with Google</button>
+    </div>
+
+    <script>
+      const api = 'http://localhost:6291'
+      document
+        .querySelector('form')
+        .addEventListener('submit', async function (event) {
+          event.preventDefault()
+
+          const email = document.getElementById('email').value
+          const password = document.getElementById('password').value
+
+          const response = await fetch(`${api}/api/auth/login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+          })
+
+          const data = await response.json()
+
+          console.log(data)
+
+          alert(data.message)
+        })
+
+      document
+        .querySelector('.google-button')
+        .addEventListener('click', async function () {
+          this.innerText = 'Redirecting...'
+          this.disabled = true
+          const response = await fetch(`${api}/api/auth/google`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+
+          const data = await response.json()
+
+          console.log(data)
+
+          alert(data.message)
+
+          this.innerText = 'Sign in with Google'
+          this.disabled = false
+        })
+    </script>
+  </body>
+</html>

@@ -18,9 +18,17 @@ const UserSchema = new Schema(
       required: true,
       select: false
     },
+    passwordHistory: {
+      type: [String],
+      select: false,
+      default: []
+    },
     role: {
       type: String,
       default: 'USER'
+    },
+    googleId: {
+      type: String
     },
     verified: {
       type: Boolean,

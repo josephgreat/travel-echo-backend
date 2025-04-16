@@ -27,13 +27,7 @@ module.exports = async (req, res, next) => {
     return res.status(201).json({
       success: true,
       message: 'User registered successfully.',
-      user: createObjectFromFields(newUser.toObject(), [
-        '_id',
-        'name',
-        'email',
-        'role',
-        'profile'
-      ])
+      user: createObjectFromFields(newUser.toObject(), ['_id', 'name', 'email'])
     })
   } catch (error) {
     next(error)

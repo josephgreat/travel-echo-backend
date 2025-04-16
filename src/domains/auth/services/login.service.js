@@ -1,7 +1,5 @@
-const env = require('#utils/env')
 const User = require('#models/user.model')
-const jwt = require('jsonwebtoken')
-const { createObjectFromFields } = require('#utils/helpers')
+const { createObjectFromFields, signJWT } = require('#utils/helpers')
 
 module.exports = async (req, res, next) => {
   const { email, password } = req.body
@@ -23,11 +21,7 @@ module.exports = async (req, res, next) => {
       })
     }
 
-    const token = jwt.sign(
-      { userId: user._id, email: user.email },
-      env.get('JWT_SECRET'),
-      { expiresIn: '1d' }
-    )
+    const token = signJWT(user)
 
     return res.status(200).json({
       success: true,
@@ -38,7 +32,8 @@ module.exports = async (req, res, next) => {
           'name',
           'email',
           'role',
-          'profile'
+          'profile',
+          'verified'
         ]),
         token
       }
