@@ -29,9 +29,17 @@ http://localhost:6291
       "_id": "67d2ac7ffc1e7c3b201926ab",
       "email": "user@example.com",
       "name": "John Doe",
-      "role": "USER",
       "profile": "67d2ac7ffc1e7c3b201926ac",
-      "token": "jwt_token"
+      "token": "jwt_token",
+      "plan": "FREE | PREMIUM",
+      "subscription": {
+        "isActive": true,
+        //The following fields may not be present if the subscription is not active
+        "planType": "MONTHLY | YEARLY",
+        "paystackSubscriptionCode": "string",
+        "startedAt": "Date",
+        "expiresAt": "Date"
+      }
     }
   }
   ```
@@ -191,8 +199,6 @@ http://localhost:6291
 
 ---
 
-
-
 ## **👤 User Profiles**
 
 ### **1️⃣ Get User Profile**
@@ -257,6 +263,45 @@ http://localhost:6291
   {
     "success": true,
     "message": "Profile image removed successfully."
+  }
+  ```
+
+---
+
+
+
+---
+
+
+## **🔒 Memories**
+
+### **1️⃣ Create Memory**
+
+- **Endpoint:** `POST /api/memories`
+- **Request Body:**
+  ```json
+  {
+    "title": "My First Memory",
+    "description": "This is my first memory",
+    "location": "New York",
+    "date": "2023-01-01",
+    "tags": ["New York", "Travel"],
+    "isPublic": true
+  }
+  ```
+- **Response:**
+  ```json
+  {
+    "success": "true",
+    "message": "Login successful",
+    "user": {
+      "_id": "67d2ac7ffc1e7c3b201926ab",
+      "email": "user@example.com",
+      "name": "John Doe",
+      "role": "USER",
+      "profile": "67d2ac7ffc1e7c3b201926ac",
+      "token": "jwt_token"
+    }
   }
   ```
 

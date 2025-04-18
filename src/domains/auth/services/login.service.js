@@ -31,9 +31,10 @@ module.exports = async (req, res, next) => {
           '_id',
           'name',
           'email',
-          'role',
           'profile',
-          'verified'
+          'verified',
+          'plan',
+          'subscription'
         ]),
         token
       }

@@ -23,7 +23,9 @@ passport.use(
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        plan: user.plan,
+        subscription: user.subscription
       }
       return done(null, authenticatedUser)
     } catch (error) {

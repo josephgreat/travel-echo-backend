@@ -13,12 +13,19 @@ router.get('/google', AuthController.signInWithGoogle)
 router.get('/google/callback', AuthController.googleAuthCallback)
 
 //Email verification
-router.post('/verification/send-otp', AuthController.sendAccountVerificationEmail)
+router.post(
+  '/verification/send-otp',
+  AuthController.sendAccountVerificationEmail
+)
 router.post('/verification/verify', AuthController.verifyAccount)
 
 //Account recovery
 router.post('/recovery/send-otp', AuthController.sendAccountRecoveryEmail)
 router.post('/recovery/verify-otp', AuthController.verifyAccountRecoveryOTP)
-router.post('/recovery/reset-password', resetPasswordValidator, AuthController.resetPassword)
+router.post(
+  '/recovery/reset-password',
+  resetPasswordValidator,
+  AuthController.resetPassword
+)
 
 module.exports = router

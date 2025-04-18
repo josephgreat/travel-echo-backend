@@ -3,6 +3,10 @@ const bcrypt = require('bcrypt')
 
 const UserSchema = new Schema(
   {
+    profile: {
+      type: Schema.Types.ObjectId,
+      ref: 'Profile'
+    },
     name: {
       type: String,
       required: true
@@ -23,20 +27,42 @@ const UserSchema = new Schema(
       select: false,
       default: []
     },
-    role: {
-      type: String,
-      default: 'USER'
-    },
-    googleId: {
-      type: String
-    },
+    googleId: String,
     verified: {
       type: Boolean,
       default: false
     },
-    profile: {
-      type: Schema.Types.ObjectId,
-      ref: 'Profile'
+
+    // PAYSTACK CUSTOMER CODE
+    paystackCustomerCode: {
+      type: String
+    },
+
+    // PLAN INFO
+    plan: {
+      type: String,
+      enum: ['FREE', 'PREMIUM'],
+      default: 'FREE'
+    },
+
+    // SUBSCRIPTION INFO
+    subscription: {
+      type: {
+        isActive: {
+          type: Boolean
+        },
+        planType: {
+          type: String,
+          enum: ['MONTHLY', 'YEARLY'],
+          default: 'MONTHLY'
+        },
+        paystackSubscriptionCode: String,
+        startedAt: Date,
+        expiresAt: Date
+      },
+      default: {
+        isActive: false
+      }
     }
   },
   { timestamps: true }
@@ -53,6 +79,4 @@ UserSchema.pre('save', async function (next) {
   next()
 })
 
-const User = model('User', UserSchema)
-
-module.exports = User
+module.exports = model('User', UserSchema)

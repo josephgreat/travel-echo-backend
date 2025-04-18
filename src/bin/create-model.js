@@ -17,16 +17,15 @@ const createModel = (modelName) => {
   const modelPath = path.join(modelsDir, `${modelLowercase}.model.js`) // Path for the model file
 
   const modelTemplate = `
-// ${modelLowercase}.model.js
-const { Schema, model } = require('mongoose')
+  const { Schema, model } = require('mongoose')
 
-const ${model}Schema = new Schema({
-  // Define schema for ${model}
-});
+  const ${model}Schema = new Schema({
+    // Define schema for ${model}
+  });
 
-const ${model} = model('${model}', ${model}Schema)
-module.exports = ${model}
-`
+  const ${model} = model('${model}', ${model}Schema)
+  module.exports = ${model}
+  `
 
   // Create the models directory if it doesn't exist
   if (!fs.existsSync(modelsDir)) {
