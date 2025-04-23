@@ -1,4 +1,4 @@
-const { transporter } = require('#config/nodemailer.config')
+const transporter = require('#config/nodemailer.config')
 const env = require('./env')
 
 /**
