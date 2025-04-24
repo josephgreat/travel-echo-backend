@@ -1,6 +1,15 @@
 const User = require('#models/user.model')
 const { createObjectFromFields, signJWT } = require('#utils/helpers')
 
+/**
+ * 
+ * @api {post} /auth/login
+ * @domain Authentication
+ * @desc Login
+ * @header {Content-Type} application/json
+ * @body {json} { "email": "string", "password": "string" }
+ * @res {json}  { "success": "boolean", "message": "string", "user": {...}, "token": "string" }
+ */
 module.exports = async (req, res, next) => {
   const { email, password } = req.body
 

@@ -4,6 +4,24 @@ const { getOTP, validateOTP } = require('./otp.service')
 const { compare } = require('bcrypt')
 
 module.exports = {
+  /**
+ * 
+ * @api {post} /recovery/send-otp
+ * @domain Authentication
+ * @desc Send OTP to verify user's account exists
+ * @header {Content-Type} application/json
+ * @body {json} { "email": "user@email.com" }
+ * @res {json}
+ * { 
+ *  "success": true, 
+ *  "message": "OTP sent to email successfully.",  
+ *  "user": {
+ *    "_id": "string",
+ *    "email": "string",
+ *    "name": "string"
+ *  }
+ * }
+ */
   async sendAccountRecoveryEmail(req, res, next) {
     try {
       const { email } = req.body
@@ -45,6 +63,24 @@ module.exports = {
     }
   },
 
+  /**
+   * 
+   * @api {post} /recovery/verify-otp
+   * @domain Authentication
+   * @desc Verify the account recovery OTP
+   * @header {Content-Type} application/json
+   * @body {json} { "email": "user@email.com", "otp": "123456" }
+   * @res {json}
+   * { 
+   *  "success": true, 
+   *  "message": "OTP verified successfully.",  
+   *  "user": {
+   *    "_id": "string",
+   *    "email": "string",
+   *    "name": "string"
+   *  }
+   * }
+   */
   async verifyAccountRecoveryOTP(req, res, next) {
     try {
       const { email, otp } = req.body
@@ -85,6 +121,19 @@ module.exports = {
     }
   },
 
+  /**
+   * 
+   * @api {post} /recovery/reset-password
+   * @domain Authentication
+   * @desc Reset user's password
+   * @header {Content-Type} application/json
+   * @body {json} { "email": "user@email.com", "password": "password123", "confirmPassword": "password123" }
+   * @res {json}
+   * { 
+   *  "success": true, 
+   *  "message": "Password reset successfully." 
+   * }
+   */
   async resetPassword(req, res, next) {
     try {
       const { email, password } = req.body

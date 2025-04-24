@@ -2,6 +2,16 @@ const User = require('#models/user.model')
 const Profile = require('#models/profile.model')
 const { createObjectFromFields } = require('#utils/helpers')
 
+
+/**
+ * 
+ * @api {post} /auth/register
+ * @domain Authentication
+ * @desc Register
+ * @header {Content-Type} application/json
+ * @body {json} { "name": "string", "email": "string", "password": "string", "confirmPassword": "string" }
+ * @res {json}  { "success": "boolean", "message": "string", "user": {...} }
+ */
 module.exports = async (req, res, next) => {
   const { name, email, password } = req.body
 

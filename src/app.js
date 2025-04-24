@@ -19,6 +19,8 @@ app.use(express.urlencoded({ extended: false }))
 app.use(express.static('public'))
 //app.use(limiter)
 
+
+//Routes
 app.use(routes())
 
 //Error handling middleware must be the last
