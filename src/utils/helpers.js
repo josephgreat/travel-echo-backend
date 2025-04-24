@@ -258,7 +258,7 @@ const helpers = {
       env.get('JWT_SECRET'),
       signOptions
     )
-  }
+  },
 }
 
 module.exports = helpers

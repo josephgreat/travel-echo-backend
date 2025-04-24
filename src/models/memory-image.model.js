@@ -17,7 +17,15 @@ const MemoryImageSchema = new Schema({
   },
   name: {
     type: String,
-    unique: true
+  },
+  publicId: {
+    type: String
+  },
+  format: {
+    type: String
+  },
+  bytes: {
+    type: Number
   }
 }, {
   timestamps: true

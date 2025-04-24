@@ -1,23 +1,57 @@
 const fs = require('fs')
 const path = require('path')
 
+/**
+ * @typedef {object} Entry
+ * @property {string} [method=GET] - The HTTP method
+ * @property {string} route - The route
+ * @property {string} [description] - The description
+ * @property {string} [domain] - The domain
+ * @property {boolean} protected - Whether the route is protected
+ * @property {{ [key: string]: string }} headers - The headers
+ * @property {Array<Params>} params - The parameters
+ * @property {{ [key: string]: { type: string, value: any } }} body - The body
+ * @property {{ [key: string]: { type: string, value: any } }} response - The response
+ */
+
+/**
+ * @typedef {object} Params
+ * @property {string} name - The name of the parameter
+ * @property {string} description - The description of the parameter
+ * @property {boolean} required - Whether the parameter is required
+ * @property {string} type - The type of the parameter
+ */
+
 const dirToScan = path.resolve('src')
 
 console.log('🔃 Generating API documentation')
 
 const files = scanDirectory(dirToScan)
 
+const defBlocks = []
+const apiBlocks = []
+const components = new Map()
+
 const grouped = {}
 
 files.forEach((file) => {
   const content = fs.readFileSync(file, 'utf8')
-  const blocks = extractApiDocumentationBlocks(content)
+  const { defBlocks: defs, apiBlocks: apis } = extractApiDocumentationBlocks(content)
+  defBlocks.push(...defs)
+  apiBlocks.push(...apis)
+})
 
-  blocks.forEach((block) => {
-    const domain = block.domain || 'Others'
-    grouped[domain] = grouped[domain] || []
-    grouped[domain].push(block)
-  })
+defBlocks.forEach((block) => {
+  const { key, value } = parseDefinitionBlocks(block)
+  components.set(key, value)
+})
+
+
+apiBlocks.forEach((block) => {
+  const entry = parseBlock(block, components)
+  const domain = entry.domain || 'Others'
+  grouped[domain] = grouped[domain] || []
+  grouped[domain].push(entry)
 })
 
 const sortedGroup = Object.fromEntries(
@@ -25,7 +59,10 @@ const sortedGroup = Object.fromEntries(
   .sort((a, b) => a[0].localeCompare(b[0]))
   .map(([domain, blocks]) => [
     domain,
-    blocks.sort((a, b) => a.route.localeCompare(b.route))
+    blocks.sort((a, b) => {
+      if (a.route === b.route) return a.method.localeCompare(b.method)
+      return a.route.localeCompare(b.route)
+    })
   ])
 )
 
@@ -64,31 +101,36 @@ function scanDirectory(dir) {
 /**
  * Extracts API documentation blocks from a file content
  * @param {string} content - The content of the file to extract blocks from
- * @returns {Object[]} An array of API documentation blocks
+ * @returns {{ defBlocks: string[], apiBlocks: string[] }} An object containing the extracted blocks
  */
 function extractApiDocumentationBlocks(content) {
   const regex = /\/\*\*([\s\S]*?)\*\//g
-  const blocks = []
+  
+  let defBlocks = []
+  let apiBlocks = []
+
   let match
+
   while ((match = regex.exec(content))) {
     const block = match[1].trim()
+    if (block.includes('@def')) {
+      defBlocks.push(block)
+    }
     if (block.includes('@api')) {
-      blocks.push(parseBlock(block))
+      apiBlocks.push(block)
     }
   }
-  
-  return blocks
+
+  return { defBlocks, apiBlocks }
 }
 
-
-
 /**
- * Parses an API documentation block
- * @param {string} block - The API documentation block to parse
- * @returns {Object} The parsed API documentation block
+ * 
+ * @param {string} block 
+ * @returns {{key: string, value: string}}
  */
-function parseBlock(block) {
-  const lines = escapeHtml(block)
+function parseDefinitionBlocks(block) {
+  const lines = block
     .split('\n')
     .map((line) => line.trim().replace(/^\*\s?/, '').trim())
     .filter(line => line.trim() !== '')
@@ -104,7 +146,48 @@ function parseBlock(block) {
       }
     }
   }
+
+  const matched= parsedLines[0].match(/^@\w+(?:\s*\{(.+?)\})?\s*(.*)$/)
   
+  return {
+    key: matched[1],
+    value: parsedLines.slice(1).join('\n')
+  }
+}
+
+
+
+/**
+ * Parses an API documentation block
+ * @param {string} block - The API documentation block to parse
+ * @param {Map<string, string>} components - The components to replace
+ * @returns {Entry} The parsed API documentation block
+ */
+function parseBlock(block, components) {
+  const lines = escapeHtml(block)
+    .split('\n')
+    .map((line) => line.trim().replace(/^\*\s?/, '').trim())
+    .filter(line => line.trim() !== '')
+
+
+  /**
+   * @type {string[]}
+   */
+  const parsedLines = []
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (line.startsWith('@')) {
+      parsedLines.push(line)
+    } else {
+      if (parsedLines.length > 0) {
+        parsedLines[parsedLines.length - 1] += ' ' + line
+      }
+    }
+  }
+
+  /**
+   * @type {Entry}
+   */
   const entry = {
     headers: {},
     params: [],
@@ -112,12 +195,32 @@ function parseBlock(block) {
     response: {}
   }
 
+  const uses = parsedLines.filter(line => line.startsWith('@use'))
+
+  uses.forEach(line => {
+    const matched = line.match(/^@\w+(?:\s*\{(.+?)\})?\s*(.*)$/)
+    const str1 = (matched[1] || '').trim()
+    const block = components.get(str1)
+    if (block) {
+      parsedLines.push(...block.split('\n'))
+    }
+  })
+
   for (const line of parsedLines) {
-    const [, str1, str2] = line.match(/^@\w+(?:\s*\{(.+?)\})?\s*(.*)$/)
+    const [, a, b] = line.match(/^@\w+(?:\s*\{(.+?)\})?\s*(.*)$/)
+
+    /**
+     * @type {string}
+     */
+    const str1 = (a || '').trim()
+    /**
+     * @type {string}
+     */
+    const str2 = (b || '').trim()
     
     if (line.startsWith('@api')) {
-      entry.method = str1?.trim()?.toUpperCase() || 'GET'
-      entry.route = str2?.trim() || ''
+      entry.method = str1.toUpperCase() || 'GET'
+      entry.route = str2
 
       entry.params = entry.route
         .split('/')
@@ -135,12 +238,12 @@ function parseBlock(block) {
     }
 
     if (line.startsWith('@desc')) {
-      entry.description = str1?.trim() || str2?.trim()
+      entry.description = str1 || str2
       continue
     }
 
     if (line.startsWith('@domain')) {
-      entry.domain = str1?.trim() ?? str2.trim()
+      entry.domain = str1 || str2
       continue
     }
 
@@ -150,14 +253,14 @@ function parseBlock(block) {
     }
 
     if (line.startsWith('@header')) {
-      entry.headers[str1.trim()] = str2.trim()
+      entry.headers[str1] = str2
       continue
     }
 
     if (line.startsWith('@par')) {
-      const isOptional = str1?.trim()?.endsWith('?')
-      const name = isOptional ? str1?.trim()?.slice(0, -1) : str1?.trim()
-      const rest = str2?.trim() || ''
+      const isOptional = str1.endsWith('?')
+      const name = isOptional ? str1.slice(0, -1) : str1
+      const rest = str2
       let paramType = ''
       let paramDesc = ''
 
@@ -191,9 +294,9 @@ function parseBlock(block) {
     }
 
     if (line.startsWith('@body')) {
-      entry.body.type = str2?.trim() ? str1?.trim() : 'unknown'
+      entry.body.type = str2 ? str1 : 'unknown'
 
-      let body = str2?.trim() || str1?.trim() || undefined
+      let body = str2 || str1 || undefined
 
       if (body) {
         if ((body.startsWith('{') && body.endsWith('}')) || entry.body.type === 'json') {
@@ -205,9 +308,9 @@ function parseBlock(block) {
     }
 
     if (line.startsWith('@res') || line.startsWith('@response')) {
-      entry.response.type = str2?.trim() ? str1?.trim() : 'unknown'
+      entry.response.type = str2 ? str1 : 'unknown'
 
-      let response = str2?.trim() || str1?.trim() || undefined
+      let response = str2 || str1 || undefined
 
       if (response) {
         if ((response.startsWith('{') && response.endsWith('}')) || entry.response.type === 'json') {
@@ -263,6 +366,11 @@ function prettyPrintPseudoJSON(raw) {
 }
 
 
+
+/**
+ * @param {string} str the string to be escaped
+ * @returns {string} the escaped string
+ */
 function escapeHtml(str) {
   return str
     .replace(/&/g, '&amp;')  // must go first
@@ -509,6 +617,28 @@ function generateHTML(grouped) {
         }
       }
     }
+    .simple-table {
+      min-width: 24rem;
+      width: 100%;
+      border-collapse: collapse;
+      font-family: monospace;
+    }
+  
+    .simple-table th, 
+    .simple-table td {
+      border: 1px solid var(--slate-300);
+      padding: 8px;
+      text-align: left;
+    } 
+  
+    .simple-table th {
+      background-color: var(--slate-200);
+      font-weight: bold;
+    }
+  
+    .simple-table tr:nth-child(even) {
+      background-color: var(--slate-50);
+    }
   </style>
 </head>
 <body>
@@ -531,7 +661,7 @@ function generateHTML(grouped) {
 
         <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem">
           ${apiArray.map((api, index) => (`<div class="api">
-            <header class="api-header ${api.method.toLowerCase()}">
+            <header class="api-header ${api.method?.toLowerCase()}">
               <p class="method">${api.method}</p>
               <p style="font-family: monospace; font-weight: 600; font-size: 0.9rem;">${api.route}</p>
               ${api.description ? `<p style="font-size: 0.9rem; color: var(--slate-600)">${api.description}</p>` : ''}
@@ -575,14 +705,30 @@ function generateHTML(grouped) {
     
                 <div class="content-section" style="margin-top: 0.75rem; font-size: 0.88rem; font-weight: 500;">
                   ${api.params.length > 0 ? (`<section data-content="params" class="params-content">
-                    <div class="code-block">
-                    ${api.params.map(({ name, required, description, type }) => (`<code>
-                        <span style="font-weight: 600;">${name}</span>
-                        <span>[${type}]</span>
-                        <span style="font-style: italic">(${required ? 'required' : 'optional'})</span>
-                        <span>${description}</span>
-                      </code>
-                      `)).join('')}
+                    <div style="overflow-x: auto; font-family: monospace; border-radius: 5px;">
+                      <table class="simple-table">
+                        <thead>
+                          <tr style="text-align: left;">
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          ${api.params.map(({ name, required, description, type }) => (`
+                          <tr>
+                            <td>
+                              <b>${name}</b>
+                            </td>
+                            <td style="color: ${type === 'path' ? 'var(--blue-600)' : 'var(--slate-500)'}">${type}</td>
+                            <td style="font-style: italic;">${required ? 'true' : 'false'}</td>
+                            <td>${description}</td>
+                          </tr>
+                          `)).join('')}
+                        </tbody>
+                      </table>
                     </div>
                   </section>`) : ''}
 

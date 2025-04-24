@@ -226,6 +226,28 @@
         }
       }
     }
+    .simple-table {
+      min-width: 24rem;
+      width: 100%;
+      border-collapse: collapse;
+      font-family: monospace;
+    }
+  
+    .simple-table th, 
+    .simple-table td {
+      border: 1px solid var(--slate-300);
+      padding: 8px;
+      text-align: left;
+    } 
+  
+    .simple-table th {
+      background-color: var(--slate-200);
+      font-weight: bold;
+    }
+  
+    .simple-table tr:nth-child(even) {
+      background-color: var(--slate-50);
+    }
   </style>
 </head>
 <body>
@@ -302,15 +324,29 @@
                 </section>
 
                 <section data-content="body" class="body-content">
-                  <div class="code-block">
-                    <code>
-                      <pre>
-                        {
-                          "name": "Julie Parsons",
-                          "age": 29
-                        }
-                      </pre>
-                    </code>
+                  <div style="overflow-x: auto; font-family: monospace; border-radius: 5px;">
+                    <table class="simple-table">
+                      <thead>
+                        <tr style="text-align: left;">
+                          <th>Name</th>
+                          <th>Type</th>
+                          <th>Required</th>
+                          <th>Description</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        <tr>
+                          <td>
+                            <b>user</b>
+                          </td>
+                          <td>string</td>
+                          <td style="font-style: italic;">required</td>
+                          <td>The user ID</td>
+                        </tr>
+
+                      </tbody>
+                    </table>
                   </div>
                 </section>
                 

@@ -27,3 +27,10 @@ app.use(routes())
 app.use(errorHandler)
 
 module.exports = app
+
+/**
+ * @def {searchParams}
+ * @par {sort?} @query To sort the data e.g sort=createdAt,ASC
+ * @par {limit?} @query To limit the number of results e.g limit=10
+ * @par {skip?} @query To skip a number of results e.g skip=10
+ */

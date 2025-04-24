@@ -20,9 +20,24 @@ module.exports = {
    *  "isPublic": "boolean | optional | default true"
    * }
    * @res {json}
-   * { "success": true, "memory": {...} }
-   * 
+   * {
+   *  "success": true,
+   *  "memory": {
+   *    "_id": "65defc452caed3211ad24de4e",
+   *    "title": "Hike to Mount Fuji",
+   *    "description": "description of memory",
+   *    "location": "Tokyo, Japan",
+   *    "date": "2023-01-01",
+   *    "tags": ["hiking", "nature"],
+   *    "isPublic": true,
+   *    "createdAt": "2023-01-01T00:00:00.000Z",
+   *    "updatedAt": "2023-01-01T00:00:00.000Z"
+   *  }
+   * }
    */
   createMemory: () => repository('memory').POST(),
-  deleteMemory: () => repository('memory').DELETE()
+
+  getUserMemoryImages: require('./services/memory-image.service').getUserMemoryImages,
+
+  addImagesToMemory: require('./services/memory-image.service').addImagesToMemory
 }
