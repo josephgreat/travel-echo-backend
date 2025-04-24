@@ -21,7 +21,9 @@ files.forEach((file) => {
 })
 
 const sortedGroup = Object.fromEntries(
-  Object.entries(grouped).map(([domain, blocks]) => [
+  Object.entries(grouped)
+  .sort((a, b) => a[0].localeCompare(b[0]))
+  .map(([domain, blocks]) => [
     domain,
     blocks.sort((a, b) => a.route.localeCompare(b.route))
   ])

@@ -2,6 +2,10 @@
 
 Welcome to the back-end module of the **Travel Echo** application
 
+## API Documentation
+
+The API documentation can be found at [https://travel-echo-backend.onrender.com/api.html](https://travel-echo-backend.onrender.com/api.html)
+
 ## Setup and Configurations
 
 ### Environmental Variables
