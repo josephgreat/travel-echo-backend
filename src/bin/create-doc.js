@@ -344,11 +344,11 @@ function parseBlock(block, components) {
  * @returns {string} the formatted JSON string
  */
 function prettyPrintPseudoJSON(raw) {
-  try {
-    // Replace ... with null temporarily
-    const placeholder = '___PLACEHOLDER___';
-    const replaced = raw.replace(/\.{3}/g, `"p": "${placeholder}"`);
+   // Replace ... with null temporarily
+   const placeholder = '___PLACEHOLDER___';
+   const replaced = raw.replace(/\.{3}/g, `"p": "${placeholder}"`);
 
+  try {
     // Parse and pretty-print
     const parsed = JSON.parse(replaced);
     let pretty = JSON.stringify(parsed, null, 2);
@@ -360,6 +360,8 @@ function prettyPrintPseudoJSON(raw) {
 
   // eslint-disable-next-line no-unused-vars
   } catch (err) {
+    //console.log(replaced)
+    //console.log(err)
     // Fallback: return raw if formatting fails
     return raw;
   }

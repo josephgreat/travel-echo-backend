@@ -13,32 +13,32 @@ module.exports = {
    * {
    *   "success": true,
    *   "memories": [
-    *    "memory": {
-    *    "_id": "64e5a320c41e2f5e8e1c29a8",
-    *    "title": "Hike to Mount Fuji",
-    *    "description": "description of memory",
-    *    "location": "Tokyo, Japan",
-    *    "date": "2023-01-01T11:24:52.000Z",
-    *    "tags": ["hiking", "nature"],
-    *    "isPublic": true,
-    *    "createdAt": "2023-01-01T00:00:00.000Z",
-    *    "updatedAt": "2023-01-01T00:00:00.000Z",
-    *    "images": [
-    *      {
-    *        "_id": "60e8cba1f1d73c004d6e9f01",
-    *        "user": "64e5a2bac41e2f5e8e1c29a2",
-    *        "memory": "64e5a2cbc41e2f5e8e1c29a3",
-    *        "imageUrl": "https://example.com/image.jpg",
-    *        "name": "IMG-MEM-1704067200000",
-    *        "format": "jpg",
-    *        "bytes": 123456,
-    *        "publicId": "IMG-MEM-1704067200000",
-    *        "createdAt": "2023-01-01T00:00:00.000Z",
-    *        "updatedAt": "2023-01-01T00:00:00.000Z"
-    *      }
-    *    ]
-    *  }
-   *  ]
+   *      {
+   *       "_id": "64e5a320c41e2f5e8e1c29a8",
+   *       "title": "Hike to Mount Fuji",
+   *       "description": "description of memory",
+   *       "location": "Tokyo, Japan",
+   *       "date": "2023-01-01T11:24:52.000Z",
+   *       "tags": ["hiking", "nature"],
+   *       "isPublic": true,
+   *       "createdAt": "2023-01-01T00:00:00.000Z",
+   *       "updatedAt": "2023-01-01T00:00:00.000Z",
+   *       "images": [
+   *         {
+   *           "_id": "60e8cba1f1d73c004d6e9f01",
+   *           "user": "64e5a2bac41e2f5e8e1c29a2",
+   *           "memory": "64e5a2cbc41e2f5e8e1c29a3",
+   *           "imageUrl": "https://example.com/image.jpg",
+   *           "name": "IMG-MEM-1704067200000",
+   *           "format": "jpg",
+   *           "bytes": 123456,
+   *           "publicId": "IMG-MEM-1704067200000",
+   *           "createdAt": "2023-01-01T00:00:00.000Z",
+   *           "updatedAt": "2023-01-01T00:00:00.000Z"
+   *         }
+   *       ]
+   *     }
+   *   ]
    * }
    * @par {search?} @query Searches for memories by title, location, or tag e.g search=<value>
    * @par {title?} @query Specific search by title e.g title=<value>
