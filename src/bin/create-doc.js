@@ -88,7 +88,7 @@ function extractApiDocumentationBlocks(content) {
  * @returns {Object} The parsed API documentation block
  */
 function parseBlock(block) {
-  const lines = block
+  const lines = escapeHtml(block)
     .split('\n')
     .map((line) => line.trim().replace(/^\*\s?/, '').trim())
     .filter(line => line.trim() !== '')
@@ -118,21 +118,6 @@ function parseBlock(block) {
     if (line.startsWith('@api')) {
       entry.method = str1?.trim()?.toUpperCase() || 'GET'
       entry.route = str2?.trim() || ''
-      continue
-    }
-
-    if (line.startsWith('@desc')) {
-      entry.description = str1?.trim() || str2?.trim()
-      continue
-    }
-
-    if (line.startsWith('@domain')) {
-      entry.domain = str1?.trim() ?? str2.trim()
-      continue
-    }
-
-    if (line.startsWith('@route')) {
-      entry.route = str1.trim() || ''
 
       entry.params = entry.route
         .split('/')
@@ -146,6 +131,16 @@ function parseBlock(block) {
             type: 'path'
           }
         })
+      continue
+    }
+
+    if (line.startsWith('@desc')) {
+      entry.description = str1?.trim() || str2?.trim()
+      continue
+    }
+
+    if (line.startsWith('@domain')) {
+      entry.domain = str1?.trim() ?? str2.trim()
       continue
     }
 
@@ -265,6 +260,16 @@ function prettyPrintPseudoJSON(raw) {
     // Fallback: return raw if formatting fails
     return raw;
   }
+}
+
+
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')  // must go first
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    //.replace(/"/g, '&quot;')
+    //.replace(/'/g, '&#039;');
 }
 
 /**
@@ -409,8 +414,11 @@ function generateHTML(grouped) {
       border: 1px solid var(--slate-200);
       border-radius: 8px;
       background-color: var(--white);
+      transition: all 200ms ease-out;
     }
     .api {
+      transition: all 200ms ease-out;
+      
       .api-header {
         display: flex;
         flex-wrap: wrap;
@@ -516,7 +524,7 @@ function generateHTML(grouped) {
     </div>
   </header>
 
-  <main>
+  <main style="display: flex; flex-direction: column; gap: 2rem;">
     ${Object.entries(grouped).map(([key, apiArray]) => (
       `<section class="domain">
         <h2>${key}</h2>
@@ -545,23 +553,23 @@ function generateHTML(grouped) {
               <div class="content-wrapper" style="padding-top: 1.2rem;">
                 <header class="content-header" style="display: flex; align-items: center; gap: 0.8rem;">
                   <div>
-                    <input type="radio" name="content-${index}" id="params-${index}" value="params" checked="true" />
-                    <label for="params-${index}" style="font-size: 0.785rem; font-weight: 600">Params</label>
+                    <input type="radio" name="content-${key}-${index}" id="params-${key}-${index}" value="params" checked="true" />
+                    <label for="params-${key}-${index}" style="font-size: 0.785rem; font-weight: 600">Params</label>
                   </div>
                   
                   <div>
-                    <input type="radio" name="content-${index}" id="headers-${index}" value="headers" />
-                    <label for="headers-${index}" style="font-size: 0.785rem; font-weight: 600">Headers</label>
+                    <input type="radio" name="content-${key}-${index}" id="headers-${key}-${index}" value="headers" />
+                    <label for="headers-${key}-${index}" style="font-size: 0.785rem; font-weight: 600">Headers</label>
                   </div>
     
                   <div>
-                    <input type="radio" name="content-${index}" id="body-${index}" value="body" />
-                    <label for="body-${index}" style="font-size: 0.785rem; font-weight: 600">Body</label>
+                    <input type="radio" name="content-${key}-${index}" id="body-${key}-${index}" value="body" />
+                    <label for="body-${key}-${index}" style="font-size: 0.785rem; font-weight: 600">Body</label>
                   </div>
     
                   <div>
-                    <input type="radio" name="content-${index}" id="response-${index}" value="response" />
-                    <label for="response-${index}" style="font-size: 0.785rem; font-weight: 600">Response</label>
+                    <input type="radio" name="content-${key}-${index}" id="response-${key}-${index}" value="response" />
+                    <label for="response-${key}-${index}" style="font-size: 0.785rem; font-weight: 600">Response</label>
                   </div>
                 </header>
     

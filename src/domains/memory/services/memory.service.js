@@ -4,7 +4,16 @@ const { isObjectIdOrHexString } = require('mongoose')
 const { ObjectId } = require('mongoose').Types
 
 module.exports = {
-  // GET user's memories with support for search and field filters
+  /**
+   * @api {get} /memories/user/:id
+   * @par {id} The user ID
+   * @desc Get user memories with the first 5 memory images for each memory
+   * @domain Memories
+   * @auth
+   * @header {Authorization} Bearer <token>
+   * @res {json}
+   * { "success": true, "memories": [...] }
+   */
   getUserMemories: async (req, res, next) => {
     try {
       const { id } = req.params

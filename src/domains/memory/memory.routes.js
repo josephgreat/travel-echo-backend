@@ -11,7 +11,7 @@ router.post('/', MemoryController.createMemory())
 router.delete('/:id', MemoryController.deleteMemory())
 
 //Memory Images
-router.get('/user/:id/images')
+router.get('/:memory_id/images')
 router.post('/user/:id/images')
 router.put('/user/:id/images')
 
