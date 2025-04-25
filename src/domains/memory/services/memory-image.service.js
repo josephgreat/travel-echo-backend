@@ -178,5 +178,90 @@ module.exports = {
     } catch (error) {
       next(error)
     }
+  },
+
+  /**
+   * @api {put} /memories/images/:id
+   * @par {id} @path The image id
+   * @desc Updates a memory image. Only the image name can be updated
+   * @domain Memories
+   * @header {Authorization} Bearer <token>
+   * @body {json} { "name": "string | required" }
+   * @res {json}
+   * {
+   *  "success": true,
+   *  "message": "Image name updated successfully"
+   * }
+   */
+  async updateMemoryImage(req, res, next) {
+    const { id: imageId } = req.params
+    const { name } = req.body
+    const userId = req.user.id
+
+    if (!name?.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Image name is required'
+      })
+    }
+
+    try {
+      const image = await MemoryImage.findOne({
+        _id: imageId,
+        user: userId
+      })
+
+      if (!image) {
+        return res.status(404).json({
+          success: false,
+          message: 'Image not found or unauthorized'
+        })
+      }
+
+      if (name === image.name) {
+        return res.status(200).json({
+          success: true,
+          message: 'Image name unchanged',
+          data: image
+        })
+      }
+
+      // Generate unique name if needed
+      let newName = name
+      let counter = 0
+      const MAX_ATTEMPTS = 100
+
+      while (counter <= MAX_ATTEMPTS) {
+        const exists = await MemoryImage.exists({
+          memory: image.memory,
+          user: userId,
+          name: newName,
+          _id: { $ne: image._id }
+        })
+
+        if (!exists) break
+
+        counter++
+        newName = `${name}(${counter})`
+      }
+
+      if (counter > MAX_ATTEMPTS) {
+        return res.status(409).json({
+          success: false,
+          message:
+            'Could not find a unique name variant after multiple attempts'
+        })
+      }
+
+      image.name = newName
+      await image.save()
+
+      return res.status(200).json({
+        success: true,
+        message: 'Image name updated successfully',
+      })
+    } catch (error) {
+      next(error)
+    }
   }
 }

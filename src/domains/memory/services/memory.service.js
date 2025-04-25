@@ -129,9 +129,9 @@ module.exports = {
       }
 
       try {
-        await cloudinary.v2.api.delete_folder(
-          `MEMORY_IMAGES/${memoryId}`, { invalidate: true }
-        )
+        await cloudinary.v2.api.delete_folder(`MEMORY_IMAGES/${memoryId}`, {
+          invalidate: true
+        })
       } catch (cloudinaryError) {
         return res.status(500).json({
           success: false,

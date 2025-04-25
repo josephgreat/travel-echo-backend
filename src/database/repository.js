@@ -117,8 +117,13 @@ const repository = (modelName) => {
 
           let updatedData = result
 
-          if (onBeforeEnd && typeof onBeforeEnd === 'function') {
-            updatedData = await onBeforeEnd(result, ctx)
+          const returned = await onBeforeEnd?.(result, ctx)
+
+          if (returned && returned.interrupt) {
+            return
+          }
+          if (returned && returned.data) {
+            updatedData = returned.data
           }
 
           if (saveModified) {
@@ -126,11 +131,12 @@ const repository = (modelName) => {
           }
 
           res.status(200).json({ success: true, data: updatedData || result })
-        } catch (err) {
-          if (onError && typeof onError === 'function') {
-            await onError(err, ctx)
+        } catch (error) {
+          const returned = await onError?.(error, ctx)
+          if (returned && returned.interrupt) {
+            return
           }
-          next(err)
+          next(error)
         }
       }
     },
@@ -146,7 +152,7 @@ const repository = (modelName) => {
       return async (req, res, next) => {
         const ctx = { req, res, next, Model, modelName }
 
-        const data = req.body
+        let data = req.body
         if (!data || Object.keys(data).length < 1) {
           return res.status(400).json({
             success: false,
@@ -155,20 +161,36 @@ const repository = (modelName) => {
         }
 
         try {
-          const parsedData = (await onBeforeCreate?.(data, ctx)) ?? data
-          const result = await Model.create(parsedData)
-          const responseData = (await onBeforeEnd?.(result, ctx)) ?? result
+          const returned = await onBeforeCreate?.(data, ctx)
+          if (returned && returned.interrupt) {
+            return
+          }
+          if (returned && returned.data) {
+            data = returned.data
+          }
+
+          let result = await Model.create(data)
+
+          const returned2 = await onBeforeEnd?.(result, ctx)
+          if (returned2 && returned2.interrupt) {
+            return
+          }
+          if (returned2 && returned2.data) {
+            result = returned2.data
+          }
+
           if (saveModified) {
-            await responseData.save()
+            await result.save()
           }
 
           return res.status(201).json({
             success: true,
-            data: responseData
+            data: result
           })
         } catch (error) {
-          if (onError && typeof onError === 'function') {
-            await onError(error, ctx)
+          const returned = await onError?.(error, ctx)
+          if (returned && returned.interrupt) {
+            return
           }
           next(error)
         }
@@ -187,7 +209,7 @@ const repository = (modelName) => {
         const ctx = { req, res, next, Model, modelName }
         const { id } = req.params
 
-        const data = req.body
+        let data = req.body
         if (!data || Object.keys(data).length < 1) {
           return res.status(400).json({
             success: false,
@@ -196,23 +218,38 @@ const repository = (modelName) => {
         }
 
         try {
-          const parsedData = (await onBeforeUpdate?.(data, ctx)) ?? data
-          const result = await Model.findByIdAndUpdate(id, parsedData, {
+          const returned = await onBeforeUpdate?.(data, ctx)
+          if (returned && returned.interrupt) {
+            return
+          }
+          if (returned && returned.data) {
+            data = returned.data
+          }
+
+          let result = await Model.findByIdAndUpdate(id, data, {
             new: true
           })
-          const responseData = (await onBeforeEnd?.(result, ctx)) ?? result
+
+          const returned2 = await onBeforeEnd?.(result, ctx)
+          if (returned2 && returned2.interrupt) {
+            return
+          }
+          if (returned2 && returned2.data) {
+            result = returned2.data
+          }
 
           if (saveModified) {
-            await responseData.save()
+            await result.save()
           }
 
           return res.status(200).json({
             success: true,
-            data: responseData
+            data: result
           })
         } catch (error) {
-          if (onError && typeof onError === 'function') {
-            await onError(error, ctx)
+          const returned = await onError?.(error, ctx)
+          if (returned && returned.interrupt) {
+            return
           }
           next(error)
         }
@@ -266,10 +303,15 @@ const repository = (modelName) => {
             }
           }
 
-          const finalCondition =
-            (await onBeforeDelete?.(deleteCondition, ctx)) ?? deleteCondition
+          const returned = await onBeforeDelete?.(deleteCondition, ctx)
+          if (returned && returned.interrupt) {
+            return
+          }
+          if (returned && returned.data) {
+            deleteCondition = returned.data
+          }
 
-          const result = await Model.findOneAndDelete(finalCondition)
+          let result = await Model.findOneAndDelete(deleteCondition)
 
           if (!result) {
             return res.status(404).json({
@@ -278,16 +320,23 @@ const repository = (modelName) => {
             })
           }
 
-          const responseData = (await onBeforeEnd?.(result, ctx)) ?? result
+          const returned2 = await onBeforeEnd?.(result, ctx)
+          if (returned2 && returned2.interrupt) {
+            return
+          }
+          if (returned2 && returned2.data) {
+            result = returned2.data
+          }
 
           return res.status(200).json({
             success: true,
             message: `${toTitleCase(modelName)} deleted successfully.`,
-            data: responseData
+            data: result
           })
         } catch (error) {
-          if (onError && typeof onError === 'function') {
-            await onError(error, ctx)
+          const returned = await onError?.(error, ctx)
+          if (returned && returned.interrupt) {
+            return
           }
           next(error)
         }

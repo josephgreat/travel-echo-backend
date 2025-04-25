@@ -44,12 +44,13 @@ module.exports = {
           title: data.title
         })
         if (memoryWithExistingTitle) {
-          return res.status(400).json({
+          res.status(400).json({
             success: false,
-            message: 'Memory with this title already exists.'
+            message: 'A memory with this title already exists.'
           })
+          return { interrupt: true }
         }
-        return data
+        return { data }
       }
     }),
 
@@ -103,12 +104,13 @@ module.exports = {
           _id: { $ne: id }
         })
         if (memoryWithExistingTitle) {
-          return res.status(400).json({
+          res.status(400).json({
             success: false,
             message: 'Memory with this title already exists.'
           })
+          return { interrupt: true }
         }
-        return updated
+        return { data: updated }
       }
     }),
 
@@ -118,5 +120,8 @@ module.exports = {
     .getUserMemoryImages,
 
   addImagesToMemory: require('./services/memory-image.service')
-    .addImagesToMemory
+    .addImagesToMemory,
+
+  updateMemoryImage: require('./services/memory-image.service')
+    .updateMemoryImage
 }

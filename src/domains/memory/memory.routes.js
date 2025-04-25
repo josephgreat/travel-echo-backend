@@ -32,5 +32,11 @@ router.post(
   objectIdValidator('memory'),
   MemoryController.addImagesToMemory
 )
+//Updates a memory image
+router.put(
+  '/images/:id',
+  objectIdValidator('image'),
+  MemoryController.updateMemoryImage
+)
 
 module.exports = router
