@@ -38,5 +38,10 @@ router.put(
   objectIdValidator('image'),
   MemoryController.updateMemoryImage
 )
+//Deletes images from a memory
+router.patch(
+  '/:id/images',
+  MemoryController.deleteMemoryImages
+)
 
 module.exports = router

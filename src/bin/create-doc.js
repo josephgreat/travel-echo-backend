@@ -205,7 +205,7 @@ function parseBlock(block, components) {
   uses.forEach((line) => {
     const matched = line.match(/^@\w+(?:\s*\{(.+?)\})?\s*(.*)$/)
     const str1 = (matched[1] || '').trim()
-    const block = components.get(str1)
+    const block = escapeHtml(components.get(str1))
     if (block) {
       parsedLines.push(...block.split('\n'))
     }
@@ -430,6 +430,18 @@ function generateHTML(grouped) {
       --amber-800: oklch(0.473 0.137 46.201);
       --amber-900: oklch(0.414 0.112 45.904);
       --amber-950: oklch(0.279 0.077 45.635);
+
+      --lime-50: oklch(0.986 0.031 120.757);
+      --lime-100: oklch(0.967 0.067 122.328);
+      --lime-200: oklch(0.938 0.127 124.321);
+      --lime-300: oklch(0.897 0.196 126.665);
+      --lime-400: oklch(0.841 0.238 128.85);
+      --lime-500: oklch(0.768 0.233 130.85);
+      --lime-600: oklch(0.648 0.2 131.684);
+      --lime-700: oklch(0.532 0.157 131.589);
+      --lime-800: oklch(0.453 0.124 130.933);
+      --lime-900: oklch(0.405 0.101 131.063);
+      --lime-950: oklch(0.274 0.072 132.109);
       
       --green-50: oklch(0.982 0.018 155.826);
       --green-100: oklch(0.962 0.044 156.743);
@@ -583,6 +595,14 @@ function generateHTML(grouped) {
           border: 1px solid var(--amber-300);
           .method {
             background-color: var(--amber-500);
+            color: var(--white);
+          }
+        }
+          &.patch {
+          background-color: var(--lime-50);
+          border: 1px solid var(--lime-300);
+          .method {
+            background-color: var(--lime-500);
             color: var(--white);
           }
         }

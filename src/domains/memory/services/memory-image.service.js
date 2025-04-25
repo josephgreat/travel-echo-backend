@@ -263,5 +263,80 @@ module.exports = {
     } catch (error) {
       next(error)
     }
+  },
+
+  /**
+   * @api {patch} /memories/:id/images
+   * @par {id} @path The memory id
+   * @desc Deletes images from a memory
+   * @domain Memories
+   * @use {commonHeaders}
+   * @body {json} ["imageid1", "imageid2"] Note: sending an empty array will delete all images in the memory
+   * @res {json}
+   * {
+   *  "success": true,
+   *  "message": "Images deleted successfully"
+   * }
+   */
+  async deleteMemoryImages(req, res, next) {
+    const { id: userId } = req.user
+    const { id: memoryId } = req.params
+    const data = req.body
+
+    if (!Array.isArray(data)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid request. Expected array of image IDs'
+      })
+    }
+
+    try {
+      const memory = await Memory.findById(memoryId)
+      if (!memory) {
+        return res.status(404).json({
+          success: false,
+          message: 'Memory not found'
+        })
+      }
+      if (data.length === 0) {
+        //Delete all images
+        try {
+          await cloudinary.v2.api.delete_folder(`MEMORY_IMAGES/${memoryId}`, { invalidate: true })
+        } catch (cloudinaryError) {
+          return res.status(500).json({
+            success: false,
+            message: 'Failed to delete images',
+            error: cloudinaryError
+          })
+        }
+
+        await MemoryImage.deleteMany({ user: userId, memory: memoryId })
+        return res.status(200).json({
+          success: true,
+          message: 'All images deleted successfully'
+        })
+      }
+
+      if (data.length > 100) {
+        return res.status(400).json({
+          success: false,
+          message: 'Maximum of 100 images can be deleted at once'
+        })
+      } 
+
+      const images = await MemoryImage.find({ user: userId, memory: memoryId, _id: { $in: data } })
+      const imagePublicIds = images.map(image => image.publicId)
+
+      await cloudinary.v2.api.delete_resources(imagePublicIds, { invalidate: true })
+      await MemoryImage.deleteMany({ user: userId, memory: memoryId, _id: { $in: data } })
+
+      res.status(200).json({
+        success: true,
+        message: 'Images deleted successfully'
+      })
+
+    } catch (error) {
+      next(error)
+    }
   }
 }

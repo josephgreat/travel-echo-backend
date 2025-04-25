@@ -123,5 +123,8 @@ module.exports = {
     .addImagesToMemory,
 
   updateMemoryImage: require('./services/memory-image.service')
-    .updateMemoryImage
+    .updateMemoryImage,
+
+  deleteMemoryImages: require('./services/memory-image.service')
+    .deleteMemoryImages
 }

@@ -33,3 +33,10 @@ module.exports = app
  * @par {limit?} @query To limit the number of results e.g limit=10
  * @par {skip?} @query To skip a number of results e.g skip=10
  */
+
+
+/**
+ * @def {commonHeaders}
+ * @header {Authorization} Bearer <token>
+ * @header {Content-Type} application/json
+ */
