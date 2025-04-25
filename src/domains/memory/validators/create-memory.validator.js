@@ -1,9 +1,10 @@
+const { isObjectIdOrHexString } = require('mongoose')
 const { z } = require('zod')
 
 const Schema = z.object({
   user: z
     .string({ message: 'User ID is required' })
-    .uuid({ message: 'User ID must be a valid UUID string' }),
+    .refine((userId) => isObjectIdOrHexString(userId), { message: 'User ID must be a valid UUID string' }),
   title: z.string({ message: 'Memory title is required' }),
   description: z.string({ message: 'Invalid description provided' }).optional(),
   location: z.string({ message: 'Invalid location provided' }).optional(),
