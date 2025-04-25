@@ -2,7 +2,7 @@ const User = require('#models/user.model')
 const { createObjectFromFields, signJWT } = require('#utils/helpers')
 
 /**
- * 
+ *
  * @api {post} /auth/login
  * @domain Authentication
  * @desc Login

@@ -1,6 +1,8 @@
+const MemoryImage = require('#models/memory-image.model')
 const Memory = require('#models/memory.model')
 const { parseSortQuery } = require('#utils/parsers')
 const { ObjectId } = require('mongoose').Types
+const cloudinary = require('cloudinary')
 
 module.exports = {
   /**
@@ -49,15 +51,7 @@ module.exports = {
   getUserMemories: async (req, res, next) => {
     const { id } = req.user
     try {
-      const {
-        limit,
-        skip,
-        sort,
-        search,
-        title,
-        location,
-        tag
-      } = req.query
+      const { limit, skip, sort, search, title, location, tag } = req.query
 
       const parsedLimit = parseInt(limit, 10) || 10
       const parsedSkip = parseInt(skip, 10) || 0
@@ -68,11 +62,7 @@ module.exports = {
 
       if (search) {
         const regex = new RegExp(search, 'i')
-        filters.$or = [
-          { title: regex },
-          { location: regex },
-          { tags: regex }
-        ]
+        filters.$or = [{ title: regex }, { location: regex }, { tags: regex }]
       }
 
       if (title) filters.title = new RegExp(title, 'i')
@@ -100,6 +90,62 @@ module.exports = {
       res.status(200).json({
         success: true,
         memories
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  /**
+   * @api {delete} /memories/:id
+   * @desc Deletes a memory and all associated images
+   * @domain Memories
+   * @header {Authorization} Bearer <token>
+   * @par {id} @path The memory ID
+   * @res {json}
+   * {
+   *  "success": true,
+   *  "message": "Memory and associated images deleted successfully"
+   * }
+   */
+  async deleteMemory(req, res, next) {
+    const { id: userId } = req.user
+    const { id: memoryId } = req.params
+
+    try {
+      const memory = await Memory.findById(memoryId)
+      if (!memory) {
+        return res.status(404).json({
+          success: false,
+          message: 'Memory not found'
+        })
+      }
+
+      if (memory.user.toString() !== userId) {
+        return res.status(403).json({
+          success: false,
+          message: 'Unauthorized'
+        })
+      }
+
+      try {
+        await cloudinary.v2.api.delete_folder(
+          `MEMORY_IMAGES/${memoryId}`, { invalidate: true }
+        )
+      } catch (cloudinaryError) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to delete memory images. Try again later.',
+          error: cloudinaryError
+        })
+      }
+
+      await MemoryImage.deleteMany({ memory: memoryId })
+      await memory.deleteOne()
+
+      res.status(200).json({
+        success: true,
+        message: 'Memory and associated images deleted successfully'
       })
     } catch (error) {
       next(error)

@@ -3,6 +3,7 @@ const logger = require('./logger')
 const crypto = require('node:crypto')
 const jwt = require('jsonwebtoken')
 const env = require('#utils/env')
+const { isObjectIdOrHexString } = require('mongoose')
 
 const helpers = {
   computeAge(dateOfBirth) {
@@ -259,6 +260,21 @@ const helpers = {
       signOptions
     )
   },
+
+  objectIdValidator(modelName, paramName = 'id') {
+    return async (req, res, next) => {
+      const { [paramName]: id } = req.params
+
+      if (!id || !isObjectIdOrHexString(id)) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid ${modelName} ID provided`
+        })
+      }
+
+      next()
+    }
+  }
 }
 
 module.exports = helpers

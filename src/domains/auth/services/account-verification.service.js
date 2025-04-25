@@ -4,14 +4,14 @@ const { getOTP, validateOTP } = require('./otp.service')
 
 module.exports = {
   /**
- * 
- * @api {post} /verification/send-otp
- * @domain Authentication
- * @desc Send OTP to verify user's email
- * @header {Content-Type} application/json
- * @body {json} { "email": "string" }
- * @res {json}  { "success": true, "message": "OTP sent to email successfully." }
- */
+   *
+   * @api {post} /verification/send-otp
+   * @domain Authentication
+   * @desc Send OTP to verify user's email
+   * @header {Content-Type} application/json
+   * @body {json} { "email": "string" }
+   * @res {json}  { "success": true, "message": "OTP sent to email successfully." }
+   */
   async sendAccountVerificationEmail(req, res, next) {
     try {
       const { email } = req.body
@@ -48,16 +48,15 @@ module.exports = {
     }
   },
 
-
   /**
- * 
- * @api {post} /verification/verify
- * @domain Authentication
- * @desc Verify user's email
- * @header {Content-Type} application/json
- * @body {json} { "email": "user@email.com", "otp": "123456" }
- * @res {json}  { "success": true, "message": "Account verified successfully." }
- */
+   *
+   * @api {post} /verification/verify
+   * @domain Authentication
+   * @desc Verify user's email
+   * @header {Content-Type} application/json
+   * @body {json} { "email": "user@email.com", "otp": "123456" }
+   * @res {json}  { "success": true, "message": "Account verified successfully." }
+   */
   async verifyAccount(req, res, next) {
     try {
       const { email, otp } = req.body

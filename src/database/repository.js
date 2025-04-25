@@ -11,9 +11,11 @@ const repository = (modelName) => {
 
   return {
     GET: (options = {}) => {
-      const { onBeforeEnd, saveModified = false } = options
+      const { onBeforeEnd, onError, saveModified = false } = options
 
       return async (req, res, next) => {
+        const ctx = { req, res, next, Model, modelName }
+
         try {
           const { id } = req.params
           const { key, where, sort, select, limit, skip, populate } = req.query
@@ -116,7 +118,7 @@ const repository = (modelName) => {
           let updatedData = result
 
           if (onBeforeEnd && typeof onBeforeEnd === 'function') {
-            updatedData = await onBeforeEnd(result)
+            updatedData = await onBeforeEnd(result, ctx)
           }
 
           if (saveModified) {
@@ -125,15 +127,25 @@ const repository = (modelName) => {
 
           res.status(200).json({ success: true, data: updatedData || result })
         } catch (err) {
+          if (onError && typeof onError === 'function') {
+            await onError(err, ctx)
+          }
           next(err)
         }
       }
     },
 
     POST: (options = {}) => {
-      const { onBeforeCreate, onBeforeEnd, saveModified = false } = options
+      const {
+        onBeforeCreate,
+        onBeforeEnd,
+        onError,
+        saveModified = false
+      } = options
 
       return async (req, res, next) => {
+        const ctx = { req, res, next, Model, modelName }
+
         const data = req.body
         if (!data || Object.keys(data).length < 1) {
           return res.status(400).json({
@@ -143,9 +155,9 @@ const repository = (modelName) => {
         }
 
         try {
-          const parsedData = onBeforeCreate?.(data) ?? data
+          const parsedData = (await onBeforeCreate?.(data, ctx)) ?? data
           const result = await Model.create(parsedData)
-          const responseData = onBeforeEnd?.(result) ?? result
+          const responseData = (await onBeforeEnd?.(result, ctx)) ?? result
           if (saveModified) {
             await responseData.save()
           }
@@ -155,15 +167,24 @@ const repository = (modelName) => {
             data: responseData
           })
         } catch (error) {
+          if (onError && typeof onError === 'function') {
+            await onError(error, ctx)
+          }
           next(error)
         }
       }
     },
 
     UPDATE: (options = {}) => {
-      const { onBeforeUpdate, onBeforeEnd, saveModified = false } = options
+      const {
+        onBeforeUpdate,
+        onBeforeEnd,
+        onError,
+        saveModified = false
+      } = options
 
       return async (req, res, next) => {
+        const ctx = { req, res, next, Model, modelName }
         const { id } = req.params
 
         const data = req.body
@@ -175,11 +196,11 @@ const repository = (modelName) => {
         }
 
         try {
-          const parsedData = onBeforeUpdate?.(data) ?? data
+          const parsedData = (await onBeforeUpdate?.(data, ctx)) ?? data
           const result = await Model.findByIdAndUpdate(id, parsedData, {
             new: true
           })
-          const responseData = onBeforeEnd?.(result) ?? result
+          const responseData = (await onBeforeEnd?.(result, ctx)) ?? result
 
           if (saveModified) {
             await responseData.save()
@@ -190,15 +211,19 @@ const repository = (modelName) => {
             data: responseData
           })
         } catch (error) {
+          if (onError && typeof onError === 'function') {
+            await onError(error, ctx)
+          }
           next(error)
         }
       }
     },
 
     DELETE: (options = {}) => {
-      const { onBeforeDelete, onBeforeEnd } = options
+      const { onBeforeDelete, onError, onBeforeEnd } = options
 
       return async (req, res, next) => {
+        const ctx = { req, res, next, Model, modelName }
         const { id } = req.params
         const { where } = req.query
 
@@ -242,7 +267,7 @@ const repository = (modelName) => {
           }
 
           const finalCondition =
-            onBeforeDelete?.(deleteCondition) ?? deleteCondition
+            (await onBeforeDelete?.(deleteCondition, ctx)) ?? deleteCondition
 
           const result = await Model.findOneAndDelete(finalCondition)
 
@@ -253,7 +278,7 @@ const repository = (modelName) => {
             })
           }
 
-          const responseData = onBeforeEnd?.(result) ?? result
+          const responseData = (await onBeforeEnd?.(result, ctx)) ?? result
 
           return res.status(200).json({
             success: true,
@@ -261,11 +286,13 @@ const repository = (modelName) => {
             data: responseData
           })
         } catch (error) {
+          if (onError && typeof onError === 'function') {
+            await onError(error, ctx)
+          }
           next(error)
         }
       }
     }
   }
 }
-
 module.exports = repository

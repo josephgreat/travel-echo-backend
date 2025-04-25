@@ -6,12 +6,12 @@ const MemoryImage = require('#models/memory-image.model')
 
 module.exports = {
   /**
-   * @api {get} /memories/:memory_id/images
+   * @api {get} /memories/:id/images
    * @desc Gets all images for a memory
    * @domain Memories
    * @auth
    * @header {Authorization} Bearer <token>
-   * @par {memory_id} @path The memory ID
+   * @par {id} @path The memory ID
    * @use {searchParams}
    * @res {json}
    * {
@@ -32,21 +32,16 @@ module.exports = {
    * }
    */
   async getUserMemoryImages(req, res, next) {
-    const { id } = req.user
-    const { memory_id } = req.params
-    const {
-      sort,
-      limit,
-      skip
-    } = req.query
+    const { id: userId } = req.user
+    const { id: memoryId } = req.params
+    const { sort, limit, skip } = req.query
 
     const parsedLimit = parseInt(limit, 10) || 10
     const parsedSkip = parseInt(skip, 10) || 0
     const parsedSort = { createdAt: -1, ...parseSortQuery(sort) }
 
     try {
-      const images = await MemoryImage
-        .find({ user: id, memory: memory_id })
+      const images = await MemoryImage.find({ user: userId, memory: memoryId })
         .sort(parsedSort)
         .skip(parsedSkip)
         .limit(parsedLimit)
@@ -62,11 +57,11 @@ module.exports = {
   },
 
   /**
-   * @api {post} /memories/:memory_id/images
+   * @api {post} /memories/:id/images
    * @desc Add maximum of 50 images at a time to a memory
    * @domain Memories
    * @header {Authorization} Bearer <token>
-   * @par {memory_id} @path The memory ID
+   * @par {id} @path The memory ID
    * @body {FormData} Form Data
    * @res {json}
    * {
@@ -79,8 +74,8 @@ module.exports = {
   async addImagesToMemory(req, res, next) {
     const MAX_FILES = 50
     const MAX_FILE_SIZE = 200 * 1024 * 1024
-    const { id } = req.user
-    const { memory_id } = req.params
+    const { id: userId } = req.user
+    const { id: memoryId } = req.params
 
     /**
      * @type {Array<{
@@ -95,7 +90,7 @@ module.exports = {
     const uploadedFiles = []
 
     try {
-      const memory = await Memory.findById(memory_id) 
+      const memory = await Memory.findById(memoryId)
 
       if (!memory) {
         return res.status(404).json({
@@ -104,7 +99,7 @@ module.exports = {
         })
       }
 
-      if (memory.user.toString() !== id) {
+      if (memory.user.toString() !== userId) {
         return res.status(403).json({
           success: false,
           message: 'Unauthorized'
@@ -118,17 +113,17 @@ module.exports = {
         fileWriteStreamHandler: (file) => {
           const transformStream = cloudinary.v2.uploader.upload_stream(
             {
-              folder: `MEMORY_IMAGES/${memory_id}`,
+              folder: `MEMORY_IMAGES/${memoryId}`,
               resource_type: 'auto',
-              public_id: `MEM-IMG-${memory_id}-${new Date().getTime()}`
+              public_id: `MEM-IMG-${memoryId}-${new Date().getTime()}`
             },
             (error, result) => {
               if (error) {
                 Object.assign(file, { _error: error })
               } else {
                 uploadedFiles.push({
-                  user: id,
-                  memory: memory_id,
+                  user: userId,
+                  memory: memoryId,
                   imageUrl: result.secure_url,
                   name: result.public_id,
                   publicId: result.public_id,
@@ -180,7 +175,6 @@ module.exports = {
         filesUploaded: uploaded.length,
         filesFailed: failed.length
       })
-
     } catch (error) {
       next(error)
     }

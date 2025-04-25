@@ -36,7 +36,8 @@ const grouped = {}
 
 files.forEach((file) => {
   const content = fs.readFileSync(file, 'utf8')
-  const { defBlocks: defs, apiBlocks: apis } = extractApiDocumentationBlocks(content)
+  const { defBlocks: defs, apiBlocks: apis } =
+    extractApiDocumentationBlocks(content)
   defBlocks.push(...defs)
   apiBlocks.push(...apis)
 })
@@ -45,7 +46,6 @@ defBlocks.forEach((block) => {
   const { key, value } = parseDefinitionBlocks(block)
   components.set(key, value)
 })
-
 
 apiBlocks.forEach((block) => {
   const entry = parseBlock(block, components)
@@ -56,14 +56,14 @@ apiBlocks.forEach((block) => {
 
 const sortedGroup = Object.fromEntries(
   Object.entries(grouped)
-  .sort((a, b) => a[0].localeCompare(b[0]))
-  .map(([domain, blocks]) => [
-    domain,
-    blocks.sort((a, b) => {
-      if (a.route === b.route) return a.method.localeCompare(b.method)
-      return a.route.localeCompare(b.route)
-    })
-  ])
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([domain, blocks]) => [
+      domain,
+      blocks.sort((a, b) => {
+        if (a.route === b.route) return a.method.localeCompare(b.method)
+        return a.route.localeCompare(b.route)
+      })
+    ])
 )
 
 const outputPath = path.resolve('public/api.html')
@@ -74,7 +74,6 @@ let html = generateHTML(sortedGroup)
 fs.writeFileSync(outputPath, html)
 
 console.log(`✅ API docs generated as HTML at ${outputPath}`)
-
 
 /**
  * Scans a directory for all .js and .ts files
@@ -97,7 +96,6 @@ function scanDirectory(dir) {
   return results
 }
 
-
 /**
  * Extracts API documentation blocks from a file content
  * @param {string} content - The content of the file to extract blocks from
@@ -105,7 +103,7 @@ function scanDirectory(dir) {
  */
 function extractApiDocumentationBlocks(content) {
   const regex = /\/\*\*([\s\S]*?)\*\//g
-  
+
   let defBlocks = []
   let apiBlocks = []
 
@@ -125,15 +123,20 @@ function extractApiDocumentationBlocks(content) {
 }
 
 /**
- * 
- * @param {string} block 
+ *
+ * @param {string} block
  * @returns {{key: string, value: string}}
  */
 function parseDefinitionBlocks(block) {
   const lines = block
     .split('\n')
-    .map((line) => line.trim().replace(/^\*\s?/, '').trim())
-    .filter(line => line.trim() !== '')
+    .map((line) =>
+      line
+        .trim()
+        .replace(/^\*\s?/, '')
+        .trim()
+    )
+    .filter((line) => line.trim() !== '')
 
   const parsedLines = []
   for (let i = 0; i < lines.length; i++) {
@@ -147,15 +150,13 @@ function parseDefinitionBlocks(block) {
     }
   }
 
-  const matched= parsedLines[0].match(/^@\w+(?:\s*\{(.+?)\})?\s*(.*)$/)
-  
+  const matched = parsedLines[0].match(/^@\w+(?:\s*\{(.+?)\})?\s*(.*)$/)
+
   return {
     key: matched[1],
     value: parsedLines.slice(1).join('\n')
   }
 }
-
-
 
 /**
  * Parses an API documentation block
@@ -166,9 +167,13 @@ function parseDefinitionBlocks(block) {
 function parseBlock(block, components) {
   const lines = escapeHtml(block)
     .split('\n')
-    .map((line) => line.trim().replace(/^\*\s?/, '').trim())
-    .filter(line => line.trim() !== '')
-
+    .map((line) =>
+      line
+        .trim()
+        .replace(/^\*\s?/, '')
+        .trim()
+    )
+    .filter((line) => line.trim() !== '')
 
   /**
    * @type {string[]}
@@ -195,9 +200,9 @@ function parseBlock(block, components) {
     response: {}
   }
 
-  const uses = parsedLines.filter(line => line.startsWith('@use'))
+  const uses = parsedLines.filter((line) => line.startsWith('@use'))
 
-  uses.forEach(line => {
+  uses.forEach((line) => {
     const matched = line.match(/^@\w+(?:\s*\{(.+?)\})?\s*(.*)$/)
     const str1 = (matched[1] || '').trim()
     const block = components.get(str1)
@@ -217,7 +222,7 @@ function parseBlock(block, components) {
      * @type {string}
      */
     const str2 = (b || '').trim()
-    
+
     if (line.startsWith('@api')) {
       entry.method = str1.toUpperCase() || 'GET'
       entry.route = str2
@@ -273,23 +278,23 @@ function parseBlock(block, components) {
         paramDesc = rest
       }
 
-      const existingParam = entry.params.find(p => p.name === name);
-    
-        if (existingParam) {
-          if (!existingParam.description && paramDesc) {
-            existingParam.description = paramDesc;
-          }
-          if (existingParam.required === undefined) {
-            existingParam.required = !isOptional;
-          }
-        } else {
-          entry.params.push({
-            name,
-            type: paramType,
-            description: paramDesc,
-            required: !isOptional
-          });
+      const existingParam = entry.params.find((p) => p.name === name)
+
+      if (existingParam) {
+        if (!existingParam.description && paramDesc) {
+          existingParam.description = paramDesc
         }
+        if (existingParam.required === undefined) {
+          existingParam.required = !isOptional
+        }
+      } else {
+        entry.params.push({
+          name,
+          type: paramType,
+          description: paramDesc,
+          required: !isOptional
+        })
+      }
       continue
     }
 
@@ -299,7 +304,10 @@ function parseBlock(block, components) {
       let body = str2 || str1 || undefined
 
       if (body) {
-        if ((body.startsWith('{') && body.endsWith('}')) || entry.body.type === 'json') {
+        if (
+          (body.startsWith('{') && body.endsWith('}')) ||
+          entry.body.type === 'json'
+        ) {
           body = prettyPrintPseudoJSON(body)
         }
         entry.body.value = body
@@ -313,7 +321,10 @@ function parseBlock(block, components) {
       let response = str2 || str1 || undefined
 
       if (response) {
-        if ((response.startsWith('{') && response.endsWith('}')) || entry.response.type === 'json') {
+        if (
+          (response.startsWith('{') && response.endsWith('}')) ||
+          entry.response.type === 'json'
+        ) {
           response = prettyPrintPseudoJSON(response)
         }
         entry.response.value = response
@@ -325,49 +336,48 @@ function parseBlock(block, components) {
   if (entry.route) {
     entry.route = entry.route.replace(/:([\w]+)\??/g, (_, param) =>
       entry.route.includes(`:${param}?`) ? `{${param}?}` : `{${param}}`
-    )  
+    )
   }
 
   if (!entry.protected && entry.headers['Authorization']) {
-    entry.protected = true;
+    entry.protected = true
   }
 
-  entry.params.forEach((param) => param.description = param.description ? param.description : param.name)
+  entry.params.forEach(
+    (param) =>
+      (param.description = param.description ? param.description : param.name)
+  )
 
   return entry
 }
-
-
 
 /**
  * @param {string} row the JSON string to be formatted
  * @returns {string} the formatted JSON string
  */
 function prettyPrintPseudoJSON(raw) {
-   // Replace ... with null temporarily
-   const placeholder = '___PLACEHOLDER___';
-   const replaced = raw.replace(/\.{3}/g, `"p": "${placeholder}"`);
+  // Replace ... with null temporarily
+  const placeholder = '___PLACEHOLDER___'
+  const replaced = raw.replace(/\.{3}/g, `"p": "${placeholder}"`)
 
   try {
     // Parse and pretty-print
-    const parsed = JSON.parse(replaced);
-    let pretty = JSON.stringify(parsed, null, 2);
+    const parsed = JSON.parse(replaced)
+    let pretty = JSON.stringify(parsed, null, 2)
 
     // Replace placeholder back with ...
-    pretty = pretty.replace(new RegExp(`"p": "${placeholder}"`, 'g'), '...');
+    pretty = pretty.replace(new RegExp(`"p": "${placeholder}"`, 'g'), '...')
 
-    return pretty;
+    return pretty
 
-  // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars
   } catch (err) {
     //console.log(replaced)
     //console.log(err)
     // Fallback: return raw if formatting fails
-    return raw;
+    return raw
   }
 }
-
-
 
 /**
  * @param {string} str the string to be escaped
@@ -375,11 +385,11 @@ function prettyPrintPseudoJSON(raw) {
  */
 function escapeHtml(str) {
   return str
-    .replace(/&/g, '&amp;')  // must go first
+    .replace(/&/g, '&amp;') // must go first
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    //.replace(/"/g, '&quot;')
-    //.replace(/'/g, '&#039;');
+  //.replace(/"/g, '&quot;')
+  //.replace(/'/g, '&#039;');
 }
 
 /**
@@ -387,7 +397,6 @@ function escapeHtml(str) {
  * @returns {string} the HTML string
  */
 function generateHTML(grouped) {
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -658,23 +667,31 @@ function generateHTML(grouped) {
   </header>
 
   <main style="display: flex; flex-direction: column; gap: 2rem;">
-    ${Object.entries(grouped).map(([key, apiArray]) => (
-      `<section class="domain">
+    ${Object.entries(grouped)
+      .map(
+        ([key, apiArray]) =>
+          `<section class="domain">
         <h2>${key}</h2>
 
         <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1rem">
-          ${apiArray.map((api, index) => (`<div class="api">
+          ${apiArray
+            .map(
+              (api, index) => `<div class="api">
             <header class="api-header ${api.method?.toLowerCase()}">
               <p class="method">${api.method}</p>
               <p style="font-family: monospace; font-weight: 600; font-size: 0.9rem;">${api.route}</p>
               ${api.description ? `<p style="font-size: 0.9rem; color: var(--slate-600)">${api.description}</p>` : ''}
 
               <div class="icons">
-              ${api.protected ? `<div class="protected" style="color: var(--slate-400)">
+              ${
+                api.protected
+                  ? `<div class="protected" style="color: var(--slate-400)">
                   <svg xmlns="http://www.w3.org/2000/svg" width="22px" height="22px" viewBox="0 -960 960 960" fill="currentColor"><path d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm240-200q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80Z"/></svg>
-                </div>` : `<div class="unprotected" style="color: var(--slate-400)">
+                </div>`
+                  : `<div class="unprotected" style="color: var(--slate-400)">
                   <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 -960 960 960" width="22px" fill="currentColor"><path d="M240-640h360v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85h-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640Zm240 360q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280Z"/></svg>
-                </div>`}
+                </div>`
+              }
 
                 <div class="chevron" style="color: var(--slate-700)">
                   <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor"><path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/></svg>
@@ -707,7 +724,9 @@ function generateHTML(grouped) {
                 </header>
     
                 <div class="content-section" style="margin-top: 0.75rem; font-size: 0.88rem; font-weight: 500;">
-                  ${api.params.length > 0 ? (`<section data-content="params" class="params-content">
+                  ${
+                    api.params.length > 0
+                      ? `<section data-content="params" class="params-content">
                     <div style="overflow-x: auto; font-family: monospace; border-radius: 5px;">
                       <table class="simple-table">
                         <thead>
@@ -720,7 +739,9 @@ function generateHTML(grouped) {
                         </thead>
 
                         <tbody>
-                          ${api.params.map(({ name, required, description, type }) => (`
+                          ${api.params
+                            .map(
+                              ({ name, required, description, type }) => `
                           <tr>
                             <td>
                               <b>${name}</b>
@@ -729,23 +750,37 @@ function generateHTML(grouped) {
                             <td style="font-style: italic;">${required ? 'true' : 'false'}</td>
                             <td>${description}</td>
                           </tr>
-                          `)).join('')}
+                          `
+                            )
+                            .join('')}
                         </tbody>
                       </table>
                     </div>
-                  </section>`) : ''}
+                  </section>`
+                      : ''
+                  }
 
-                  ${Object.keys(api.headers).length > 0 ? (`<section data-content="headers" class="headers-content">
+                  ${
+                    Object.keys(api.headers).length > 0
+                      ? `<section data-content="headers" class="headers-content">
                     <div class="code-block">
-                    ${Object.entries(api.headers).map(([key, value]) => (`<code>
+                    ${Object.entries(api.headers)
+                      .map(
+                        ([key, value]) => `<code>
                         <span>${key}:</span>
                         <span style="font-weight: 600;">${value}</span>
                       </code>
-                      `)).join('')}
+                      `
+                      )
+                      .join('')}
                     </div>
-                  </section>`) : ''}
+                  </section>`
+                      : ''
+                  }
 
-                  ${api.body?.value ? (`<section data-content="body" class="body-content">
+                  ${
+                    api.body?.value
+                      ? `<section data-content="body" class="body-content">
                     <div class="code-block">
                       <div>
                         <code style="color: var(--slate-300); font-size: 0.8rem; font-weight: 600">${api.body.type}</code>
@@ -755,9 +790,13 @@ function generateHTML(grouped) {
                         <pre>${api.body.value}</pre>
                       </code>
                     </div>
-                  </section>`) : ''}
+                  </section>`
+                      : ''
+                  }
 
-                  ${api.response?.value ? (`<section data-content="response" class="response-content">
+                  ${
+                    api.response?.value
+                      ? `<section data-content="response" class="response-content">
                     <div class="code-block">
                       <div>
                         <code style="color: var(--slate-300); font-size: 0.8rem; font-weight: 600">${api.response.type}</code>
@@ -767,14 +806,19 @@ function generateHTML(grouped) {
                         <pre>${api.response.value}</pre>
                       </code>
                     </div>
-                  </section>`) : ''}
+                  </section>`
+                      : ''
+                  }
                 </div>
               </div>
             </div>
-          </div>`)).join(' ')}
+          </div>`
+            )
+            .join(' ')}
         </div>
       </section>`
-    )).join(' ')}
+      )
+      .join(' ')}
   </main>
 
   <script>

@@ -2,19 +2,18 @@ module.exports = {
   parseWhereQuery(where) {
     const filters = {}
     const conditions = Array.isArray(where) ? where : [where]
-  
+
     conditions.forEach((condition) => {
       const [key, value] = condition.split(',')
       if (key && value !== undefined) {
         filters[key] = isNaN(value) ? value : Number(value)
       }
     })
-  
+
     return filters
   },
 
-  
-    /**
+  /**
    * Parses a sort query string or array into a Mongoose-compatible sort object.
    *
    * @param {string|string[]} sort - A sort query in the format `'field,ASC'` or `'field,DESC'`,
@@ -39,19 +38,16 @@ module.exports = {
     return sortObj
   },
 
-  
   parseSelectQuery(select) {
     return select.replace(/,/g, ' ')
   },
-  
+
   parsePopulateQuery(populate) {
     const populateParams = Array.isArray(populate) ? populate : [populate]
-  
+
     return populateParams.map((popItem) => {
       const [path, ...fields] = popItem.split(',')
-      return fields.length
-        ? { path, select: fields.join(' ') }
-        : { path }
+      return fields.length ? { path, select: fields.join(' ') } : { path }
     })
   }
 }
