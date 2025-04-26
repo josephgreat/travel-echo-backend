@@ -250,7 +250,7 @@ const helpers = {
    */
   signJWT(user, options = {}) {
     const signOptions = {
-      expiresIn: '1h',
+      expiresIn: '30d',
       ...options
     }
 
