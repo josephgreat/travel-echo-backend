@@ -1,7 +1,6 @@
 const MemoryImage = require('#models/memory-image.model')
 const Memory = require('#models/memory.model')
 const { parseSortQuery } = require('#utils/parsers')
-const { ObjectId } = require('mongoose').Types
 const cloudinary = require('cloudinary')
 
 module.exports = {
@@ -51,14 +50,14 @@ module.exports = {
   getUserMemories: async (req, res, next) => {
     const { id } = req.user
     try {
-      const { limit, skip, sort, search, title, location, tag } = req.query
+      const { limit = 0, skip = 0, sort, search, title, location, tag } = req.query
 
       const parsedLimit = parseInt(limit, 10) || 10
       const parsedSkip = parseInt(skip, 10) || 0
-      const parsedSort = { createdAt: -1, ...parseSortQuery(sort) }
+      const parsedSort = { createdAt: -1, ...(sort && parseSortQuery(sort)) }
 
       // Build filters
-      const filters = { user: ObjectId.createFromHexString(id) }
+      const filters = { user: id }
 
       if (search) {
         const regex = new RegExp(search, 'i')
