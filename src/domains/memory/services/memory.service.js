@@ -2,6 +2,7 @@ const MemoryImage = require('#models/memory-image.model')
 const Memory = require('#models/memory.model')
 const { parseSortQuery, parsePopulateQuery } = require('#utils/parsers')
 const cloudinary = require('cloudinary')
+const pluralize = require('pluralize')
 
 module.exports = {
   /**
@@ -48,70 +49,114 @@ module.exports = {
    * @use {searchParams}
    */
   getUserMemories: async (req, res, next) => {
-    const { id } = req.user
+    const { id } = req.user;
     try {
-      const { limit = 0, skip = 0, sort, populate, search, title, location, tag } = req.query
-  
-      const parsedLimit = parseInt(limit, 10) || 10
-      const parsedSkip = parseInt(skip, 10) || 0
-      const parsedSort = { createdAt: -1, ...(sort && parseSortQuery(sort)) }
-  
-      const parsedPopulate = populate ? parsePopulateQuery(populate) : []
-  
-      // Build filters
-      const filters = { user: id }
-  
-      if (search) {
-        const regex = new RegExp(search, 'i')
-        filters.$or = [{ title: regex }, { location: regex }, { tags: regex }]
-      }
-  
-      if (title) filters.title = new RegExp(title, 'i')
-      if (location) filters.location = new RegExp(location, 'i')
-      if (tag) filters.tags = new RegExp(tag, 'i')
-  
-      // Start the aggregation pipeline
-      const aggregationPipeline = [
-        { $match: filters },
-        { $sort: parsedSort },
-        { $skip: parsedSkip },
-        { $limit: parsedLimit },
-        {
-          $lookup: {
-            from: 'memoryimages',
-            let: { memoryId: '$_id' },
-            pipeline: [
-              { $match: { $expr: { $eq: ['$memory', '$$memoryId'] } } },
-              { $limit: 5 }
-            ],
-            as: 'images'
-          }
+        const { limit = 0, skip = 0, sort, populate, search, title, location, tag } = req.query;
+
+        const parsedLimit = parseInt(limit, 10) || 10;
+        const parsedSkip = parseInt(skip, 10) || 0;
+        const parsedSort = { createdAt: -1, ...(sort && parseSortQuery(sort)) };
+        const parsedPopulate = populate ? parsePopulateQuery(populate) : [];
+
+        const filters = { user: id }; // Ensure user ID is ObjectId
+
+        if (search) {
+            const regex = new RegExp(search, 'i');
+            filters.$or = [{ title: regex }, { location: regex }, { tags: regex }];
         }
-      ]
-  
-      // Add the dynamic populate (using $lookup)
-      parsedPopulate.forEach(populatePath => {
+
+        if (title) filters.title = new RegExp(title, 'i');
+        if (location) filters.location = new RegExp(location, 'i');
+        if (tag) filters.tags = new RegExp(tag, 'i'); // Assuming tags is an array of strings you want to match partially
+
+        const aggregationPipeline = [
+            { $match: filters },
+        ];
+
         aggregationPipeline.push({
-          $lookup: {
-            from: populatePath.path,  // The collection to join
-            localField: populatePath.path, // The field to match from the current collection
-            foreignField: '_id',  // The field to match from the foreign collection
-            as: populatePath.select  // Alias for the results (can be used to project/select fields)
-          }
-        })
-      })
-  
-      // Execute aggregation
-      const memories = await Memory.aggregate(aggregationPipeline)
-  
-      res.status(200).json({
-        success: true,
-        memories
-      })
+            $lookup: {
+                from: 'memoryimages',
+                let: { memoryId: '$_id' },
+                pipeline: [
+                    { $match: { $expr: { $eq: ['$memory', '$$memoryId'] } } },
+                    { $sort: { createdAt: 1 } },
+                    { $limit: 5 }
+                    // Add $project here if needed for images: { $project: { _id: 1, url: 1 } }
+                ],
+                as: 'images'
+            }
+        });
+
+        parsedPopulate.forEach(populatePath => {
+            const relationshipPath = populatePath.path;
+            const targetCollection = pluralize(relationshipPath);
+
+            aggregationPipeline.push({
+                $lookup: {
+                    from: targetCollection,
+                    localField: relationshipPath,
+                    foreignField: '_id',
+                    as: relationshipPath
+                }
+            });
+
+            const selectFields = populatePath.select ? populatePath.select.split(' ').filter(Boolean) : [];
+
+            if (selectFields.length > 0) {
+                const itemProjection = selectFields.reduce((acc, field) => {
+                    acc[field] = `$$item.${field}`;
+                    return acc;
+                }, {});
+                itemProjection._id = '$$item._id';
+
+                aggregationPipeline.push({
+                    $addFields: {
+                        [relationshipPath]: {
+                            $map: {
+                                input: `$${relationshipPath}`,
+                                as: 'item',
+                                in: itemProjection
+                            }
+                        }
+                    }
+                });
+            }
+
+            const schemaPathInfo = Memory.schema.path(relationshipPath);
+            const isArrayField = schemaPathInfo && schemaPathInfo.instance === 'Array';
+
+            if (!isArrayField) {
+                 aggregationPipeline.push({
+                    $addFields: {
+                        [relationshipPath]: {
+                            $cond: {
+                               if: { $eq: [ { $size: `$${relationshipPath}` }, 1 ] },
+                               then: { $arrayElemAt: [ `$${relationshipPath}`, 0 ] },
+                               else: `$${relationshipPath}`
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+         aggregationPipeline.push(
+            { $sort: parsedSort },
+            { $skip: parsedSkip },
+            { $limit: parsedLimit }
+        );
+
+        const memories = await Memory.aggregate(aggregationPipeline);
+
+        res.status(200).json({
+            success: true,
+            memories,
+        });
     } catch (error) {
-      next(error)
+        next(error);
     }
-  },
+},
+  
 
   /**
    * @api {delete} /memories/:id

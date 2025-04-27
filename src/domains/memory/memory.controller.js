@@ -50,7 +50,7 @@ module.exports = {
           })
           return { interrupt: true }
         }
-        return { data }
+        return { data: { ...data, user: req.user.id } }
       }
     }),
 
