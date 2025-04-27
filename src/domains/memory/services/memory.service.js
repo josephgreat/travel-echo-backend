@@ -1,6 +1,6 @@
 const MemoryImage = require('#models/memory-image.model')
 const Memory = require('#models/memory.model')
-const { parseSortQuery } = require('#utils/parsers')
+const { parseSortQuery, parsePopulateQuery } = require('#utils/parsers')
 const cloudinary = require('cloudinary')
 
 module.exports = {
@@ -50,25 +50,28 @@ module.exports = {
   getUserMemories: async (req, res, next) => {
     const { id } = req.user
     try {
-      const { limit = 0, skip = 0, sort, search, title, location, tag } = req.query
-
+      const { limit = 0, skip = 0, sort, populate, search, title, location, tag } = req.query
+  
       const parsedLimit = parseInt(limit, 10) || 10
       const parsedSkip = parseInt(skip, 10) || 0
       const parsedSort = { createdAt: -1, ...(sort && parseSortQuery(sort)) }
-
+  
+      const parsedPopulate = populate ? parsePopulateQuery(populate) : []
+  
       // Build filters
       const filters = { user: id }
-
+  
       if (search) {
         const regex = new RegExp(search, 'i')
         filters.$or = [{ title: regex }, { location: regex }, { tags: regex }]
       }
-
+  
       if (title) filters.title = new RegExp(title, 'i')
       if (location) filters.location = new RegExp(location, 'i')
       if (tag) filters.tags = new RegExp(tag, 'i')
-
-      const memories = await Memory.aggregate([
+  
+      // Start the aggregation pipeline
+      const aggregationPipeline = [
         { $match: filters },
         { $sort: parsedSort },
         { $skip: parsedSkip },
@@ -84,8 +87,23 @@ module.exports = {
             as: 'images'
           }
         }
-      ])
-
+      ]
+  
+      // Add the dynamic populate (using $lookup)
+      parsedPopulate.forEach(populatePath => {
+        aggregationPipeline.push({
+          $lookup: {
+            from: populatePath.path,  // The collection to join
+            localField: populatePath.path, // The field to match from the current collection
+            foreignField: '_id',  // The field to match from the foreign collection
+            as: populatePath.select  // Alias for the results (can be used to project/select fields)
+          }
+        })
+      })
+  
+      // Execute aggregation
+      const memories = await Memory.aggregate(aggregationPipeline)
+  
       res.status(200).json({
         success: true,
         memories

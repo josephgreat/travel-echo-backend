@@ -49,5 +49,6 @@ module.exports = {
       const [path, ...fields] = popItem.split(',')
       return fields.length ? { path, select: fields.join(' ') } : { path }
     })
-  }
+  },
+
 }
