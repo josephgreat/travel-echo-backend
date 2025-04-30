@@ -6,6 +6,7 @@ const initializeCloudinary = require('#config/cloudinary.config')
 const corsConfig = require('#config/cors.config')
 //const limiter = require('./config/rate-limit.config')
 const routes = require('./routes')
+const path = require('path')
 
 initializeDatabase()
 initializeCloudinary()
@@ -21,6 +22,8 @@ app.use(express.static('public'))
 
 //Routes
 app.use(routes())
+
+app.get("/test", (req, res) => res.sendFile(path.resolve("public", "file.html")))
 
 //Error handling middleware must be the last
 app.use(errorHandler)

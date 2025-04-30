@@ -29,6 +29,10 @@ const MemorySchema = new Schema(
     isPublic: {
       type: Boolean,
       default: true
+    },
+    imageCount: {
+      type: Number,
+      default: 0
     }
   },
   { timestamps: true }

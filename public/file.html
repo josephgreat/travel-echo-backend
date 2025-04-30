@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <form>
+    <input type="file" name="file" id="file" multiple />
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+    const form = document.querySelector('form')
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const formData = new FormData(e.target)
+      e.submitter.innerText = "Loading..."
+      e.submitter.disabled = true
+      try {
+        const response = await fetch('/api/memories/6811987ca93bf0789808c064/images', {
+          headers: {
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODExNTc2Yjc5ZTg5OGI0ZGJhNWNjNTgiLCJlbWFpbCI6ImFkZWRlcm9AZXhhbXBsZS5jb20iLCJpYXQiOjE3NDU5NjY5OTksImV4cCI6MTc0ODU1ODk5OX0._6TEYE4bhnZiVW2BONh93HRf7_T8NqYd-pAw7bE2PdI'
+          },
+          method: 'POST',
+          body: formData
+        })
+        const data = await response.json()
+      console.log(data)
+      } catch (error) {
+        console.error(error)
+      } finally {
+        e.submitter.innerText = "Submit"
+        e.submitter.disabled = false
+      }
+    })
+  </script>
+</body>
+</html>
