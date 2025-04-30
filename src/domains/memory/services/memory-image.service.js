@@ -5,7 +5,6 @@ const Memory = require('#models/memory.model')
 const MemoryImage = require('#models/memory-image.model')
 const { PassThrough } = require('node:stream')
 const { randomString } = require('#utils/helpers')
-const { logger } = require('#config/nodemailer.config')
 
 module.exports = {
   /**
@@ -288,6 +287,41 @@ module.exports = {
     }
   },
 
+
+  async deleteAllMemoryImages(userId, memory) {
+    let imageCount = memory.imageCount ?? 0
+    const BATCH_SIZE = 100
+    let processedCount = 0
+    
+    while (processedCount < imageCount) {
+      const batch = await MemoryImage.find({ 
+        user: userId, 
+        memory: memory._id 
+      })
+      .select('publicId')
+      .limit(BATCH_SIZE)
+      .lean()
+      
+      if (batch.length === 0) break
+      
+      const publicIds = batch.map(image => image.publicId).filter(Boolean)
+      
+      if (publicIds.length > 0) {
+        await cloudinary.v2.api.delete_resources(publicIds, { invalidate: true })
+      }
+      
+      const batchIds = batch.map(image => image._id)
+      await MemoryImage.deleteMany({ _id: { $in: batchIds } })
+      
+      processedCount += batch.length
+    }
+
+    memory.imageCount = 0
+    await memory.save()
+
+    return  { processedCount }
+  },
+
   /**
    * @api {patch} /memories/:id/images
    * @par {id} @path The memory id
@@ -330,41 +364,16 @@ module.exports = {
       }
 
       if (data.length === 0) {
-        let imageCount = memory.imageCount ?? 0
-        const BATCH_SIZE = 100
-        let processedCount = 0
-        
-        while (processedCount < imageCount) {
-          const batch = await MemoryImage.find({ 
-            user: userId, 
-            memory: memoryId 
-          })
-          .select('publicId')
-          .limit(BATCH_SIZE)
-          .lean()
-          
-          if (batch.length === 0) break
-          
-          const publicIds = batch.map(image => image.publicId).filter(Boolean)
-          
-          if (publicIds.length > 0) {
-            await cloudinary.v2.api.delete_resources(publicIds, { invalidate: true })
-          }
-          
-          const batchIds = batch.map(image => image._id)
-          await MemoryImage.deleteMany({ _id: { $in: batchIds } })
-          
-          processedCount += batch.length
-        }
+        const { processedCount } = await this.deleteAllMemoryImages(userId, memory)
 
-        try {
+        /* try {
           await Promise.all([
             memory.deleteOne(),
             cloudinary.v2.api.delete_folder(`MEMORY_IMAGES/${memoryId}`, { invalidate: true })
           ])
         } catch (cloudinaryError) {
           logger.error(`Failed to delete memory images folder MEMORY_IMAGES/${memoryId}`, cloudinaryError)
-        }
+        } */
 
         return res.status(200).json({
           success: true,

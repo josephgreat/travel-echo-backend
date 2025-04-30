@@ -1,8 +1,7 @@
-const MemoryImage = require('#models/memory-image.model')
 const Memory = require('#models/memory.model')
 const { parseSortQuery, parsePopulateQuery } = require('#utils/parsers')
-const cloudinary = require('cloudinary')
 const pluralize = require('pluralize')
+const { deleteAllMemoryImages } = require('./memory-image.service')
 
 module.exports = {
   /**
@@ -183,31 +182,20 @@ module.exports = {
         })
       }
 
-      if (memory.user.toString() !== userId) {
+      if (memory.user.toString() !== userId.toString()) {
         return res.status(403).json({
           success: false,
           message: 'Unauthorized'
         })
       }
 
-      try {
-        await cloudinary.v2.api.delete_folder(`MEMORY_IMAGES/${memoryId}`, {
-          invalidate: true
-        })
-      } catch (cloudinaryError) {
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to delete memory images. Try again later.',
-          error: cloudinaryError
-        })
-      }
-
-      await MemoryImage.deleteMany({ memory: memoryId })
+      const { processedCount } = await deleteAllMemoryImages(userId, memory)
       await memory.deleteOne()
 
       res.status(200).json({
         success: true,
-        message: 'Memory and associated images deleted successfully'
+        message: 'Memory and associated images deleted successfully',
+        deletedCount: processedCount
       })
     } catch (error) {
       next(error)
